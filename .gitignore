@@ -10,6 +10,7 @@
 /node_modules
 npm-debug.log
 yarn-error.log
+package-lock.json.log # Añadido: A veces npm genera logs de lock inesperados
 
 # IDEs and editors
 .idea/
@@ -29,7 +30,7 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-/.angular/cache
+/.angular/
 .sass-cache/
 /connect.lock
 /coverage
@@ -40,3 +41,15 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# --- REFUERZOS PROFESIONALES ---
+# Ignorar logs de sistema y procesos
+*.log
+.eslintcache
+
+# Ignorar variables de entorno locales
+.env
+.env.local
+
+# Asegurar que la caché de Angular esté totalmente fuera
+.angular/cache/
