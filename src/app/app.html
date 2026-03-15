@@ -1,88 +1,39 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+<!-- Botón de toggler para pantallas pequeñas -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
   <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="#">
-      <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/spring/spring-original.svg" width="30" height="30" class="me-2" alt="Logo">
+    <a class="navbar-brand d-flex align-items-center" routerLink="/dashboard">
+      <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/spring/spring-original.svg" width="30"
+        height="30" class="me-2" alt="Logo">
       <span>Inventario<span class="text-success">prodcus</span></span>
     </a>
-    
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
+<!-- Botón de toggler para pantallas pequeñas -->
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <a class="nav-link active" href="#"><i class="bi bi-house-door"></i> Dashboard</a>
+          <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">
+            <i class="bi bi-house-door"></i> Dashboard
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#"><i class="bi bi-box-seam"></i> Productos</a>
+          <a class="nav-link" routerLink="/productos" routerLinkActive="active">
+            <i class="bi bi-box-seam"></i> Productos
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#"><i class="bi bi-people"></i> Usuarios</a>
+          <a class="nav-link" routerLink="/usuarios" routerLinkActive="active">
+            <i class="bi bi-people"></i> Usuarios
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#"><i class="bi bi-cart-check"></i> Órdenes</a>
+          <a class="nav-link" routerLink="/ordenes" routerLinkActive="active">
+            <i class="bi bi-cart-check"></i> Órdenes
+          </a>
         </li>
       </ul>
     </div>
   </div>
 </nav>
-
-<main class="container mt-5">
-  <div class="row">
-    <div class="col-12">
-      <div class="card border-0 shadow-sm p-4">
-        <h2 class="text-secondary border-bottom pb-2">Bienvenido al Sistema de Gestión</h2>
-        <p class="text-muted">Conectado exitosamente a: <code>api-rest-inventory-base</code></p>
-        
-        <div class="mt-4 bg-light p-5 rounded-3 text-center">
-           <i class="bi bi-gear-wide-connected display-1 text-success"></i>
-           <p class="mt-3">El módulo de inventario está listo para la integración.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</main>
-
-<footer class="text-center mt-5 py-4 border-top text-muted">
-  <small>&copy; 2026 Johan Sebastian Peña Ordoñez - Software & QA Specialist</small>
-</footer>
-
-
-<div class="row g-4">
-  <div class="col-md-4">
-    <div class="card border-0 shadow-sm bg-primary text-white p-3">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <h6 class="text-uppercase mb-1">Total Productos</h6>
-          <h2 class="mb-0">125</h2>
-        </div>
-        <i class="bi bi-box fs-1 opacity-50"></i>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card border-0 shadow-sm bg-success text-white p-3">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <h6 class="text-uppercase mb-1">Ventas Hoy</h6>
-          <h2 class="mb-0">$4.2M</h2>
-        </div>
-        <i class="bi bi-currency-dollar fs-1 opacity-50"></i>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card border-0 shadow-sm bg-warning text-dark p-3">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <h6 class="text-uppercase mb-1">Alertas Stock</h6>
-          <h2 class="mb-0">8</h2>
-        </div>
-        <i class="bi bi-exclamation-triangle fs-1 opacity-50"></i>
-      </div>
-    </div>
-  </div>
-</div>
-
-<router-outlet />
+<!-- Contenedor principal para las vistas -->
+  <router-outlet></router-outlet>
+  <!-- Modales globales -->
+  <app-notification-modal></app-notification-modal>

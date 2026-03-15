@@ -1,10 +1,11 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { NotificationModalComponent } from './shared/components/notification-modal/notification-modal';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive,NotificationModalComponent],
   templateUrl: './app.html', 
   styleUrl: './app.scss'
 })
