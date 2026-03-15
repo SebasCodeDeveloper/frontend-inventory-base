@@ -1,18 +1,17 @@
 // Efecto Cristal de macOS
 .mac-glass {
-  background: rgba(252, 252, 252, 0.512) !important; // Transparencia base
-  backdrop-filter: blur(20px) saturate(180%); // El desenfoque clave de Apple
+  background: rgba(252, 252, 252, 0.512) !important; 
+  backdrop-filter: blur(20px) saturate(180%); 
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(0, 0, 0, 0.492) !important; // Borde sutil brillante
-  border-radius: 22px !important; // Bordes muy redondeados tipo iPhone/Mac
+  border: 1px solid rgba(0, 0, 0, 0.492) !important; 
+  border-radius: 22px !important; 
 }
 
 // Estilo del icono
 .mac-icon-style {
   font-size: 3rem;
   display: inline-block;
-  animation: macScale 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); // Animación de rebote suave
-}
+  animation: macScale 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
 // Espaciado de letras tipo Apple
 .tracking-tight {
@@ -33,5 +32,6 @@
 
 // Ajuste para el modal-dialog para que no use el fondo negro de Bootstrap tan fuerte
 :host ::ng-deep .modal-backdrop.show {
-  opacity: 0.2; // Fondo oscuro muy suave para resaltar el cristal
+  opacity: 0.2; 
+}
 }

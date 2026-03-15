@@ -11,12 +11,13 @@ import { Observable } from 'rxjs';
   styleUrl: './dynamic-form.scss',
 })
 export class DynamicFormComponent implements OnDestroy, AfterViewInit {
+  // Outputs para comunicar al padre cuando una operación fue exitosa o cuando se cancela la edición/creación
   @Output() operationSuccess = new EventEmitter<void>();
   @Output() onCancel = new EventEmitter<void>();
 
-  // CONFIGURACIÓN DINÁMICA
+// Inputs para configurar el formulario dinámico
   @Input() title: string = 'Record';
-  @Input() fields: any[] = []; // Aquí definiremos si es nombre, precio, etc.
+  @Input() fields: any[] = []; 
   @Input() modalId: string = 'genericModal';
   
   // La función que guarda (viene del padre)
@@ -29,6 +30,7 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
 
   private modalListener = () => this.ejecutarLimpiezaSilenciosa();
 
+  // Este setter se encarga de cargar los datos en el formulario cuando se recibe un objeto para editar, o limpiar el formulario si se recibe null (para crear nuevo)
   @Input() set dataToEdit(data: any) {
     if (data) {
       this.id = data.id;
@@ -42,16 +44,16 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
   }
 
   constructor(private fb: FormBuilder) {
-    this.form = this.fb.group({}); // Se construye dinámicamente en el OnInit
+    this.form = this.fb.group({}); 
   }
 
+  // En este método se crean los controles del formulario dinámicamente según los campos recibidos por input
   ngOnInit() {
-    // Construimos el form según los fields que pasemos
     this.fields.forEach(field => {
       this.form.addControl(field.name, this.fb.control('', field.validators));
     });
   }
-
+// Agregamos un listener al modal para limpiar el formulario cada vez que se cierre, evitando que queden datos o errores al abrirlo nuevamente
   ngAfterViewInit() {
     const modalElement = document.getElementById(this.modalId);
     if (modalElement) {
@@ -59,6 +61,7 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
     }
   }
 
+  // Limpiamos el formulario y los errores cuando se cierra el modal para evitar que queden datos o mensajes de error al abrirlo nuevamente
   ngOnDestroy(): void {
     const modalElement = document.getElementById(this.modalId);
     if (modalElement) {
@@ -66,12 +69,14 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
     }
   }
 
+// Este método se encarga de cerrar el modal y limpiar el formulario completamente (incluyendo errores) después de una operación exitosa
   resetFormTotal(): void {
   const closeBtn = document.querySelector(`#${this.modalId} [data-bs-dismiss="modal"]`) as HTMLElement;
   if (closeBtn) {
     closeBtn.click();
   }
 }
+
 // Este método se encarga de limpiar el formulario y los errores sin cerrar el modal (para casos como "Guardar y seguir editando")
   private ejecutarLimpiezaSilenciosa(): void {
     this.form.reset();
@@ -81,11 +86,10 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
     this.onCancel.emit();
   }
 
+  // Método que se ejecuta al enviar el formulario, se encarga de llamar a la función de guardado y manejar la respuesta
   onSubmit() {
-    if (this.form.invalid) return;
-
+    if (this.form.invalid) return
     this.backendErrors = [];
-    // Llamamos a la acción de guardado que nos pasaron
     this.saveAction(this.form.value, this.id).subscribe({
       next: () => {
         this.operationSuccess.emit();
@@ -94,6 +98,7 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
       error: (err) => this.handleBackendErrors(err),
     });
   }
+
   // Este método se encarga de interpretar los errores del backend y mostrarlos en el formulario
   private handleBackendErrors(err: any) {
     if (err.error) {

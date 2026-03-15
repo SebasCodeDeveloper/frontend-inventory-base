@@ -9,9 +9,11 @@ import { User } from '../models/user.model'; // Usamos tus modelos PRO
   providedIn: 'root',
 })
 export class UserService {
-  // Centralizamos la URL del recurso
-  private readonly API_URL = `${environment.apiUrl}`;
   
+// URL base para las operaciones CRUD de usuarios
+private readonly API_URL = `${environment.apiUrl}/users`;
+
+// Configuración de las opciones HTTP, incluyendo los encabezados
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
   };
