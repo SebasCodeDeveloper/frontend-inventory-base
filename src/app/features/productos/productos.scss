@@ -1,10 +1,9 @@
-//estilos para la sección de productos, con un diseño tipo MacOS moderno y elegante
+// contenido principal tabla
 .container {
   max-width: 1000px;
   animation: fadeIn 0.5s ease-in-out;
 }
 
-// Animación de entrada suave
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -16,7 +15,7 @@
   }
 }
 
-//estilos para la sección de productos, con un diseño tipo MacOS moderno y elegante
+//estilo de tabla  mantiene los estilos redondos
 .mac-table-container {
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   border-radius: 18px !important;
@@ -28,7 +27,7 @@
   margin-bottom: 2rem;
 }
 
-//estilos para la sección de productos, con un diseño tipo MacOS moderno y elegante
+//estilo para el encabezado de la tabla tipo MacOS moderno y elegante
 .mac-header {
   height: 40px;
   background: rgba(245, 245, 247, 0.901);
@@ -37,7 +36,7 @@
   align-items: center;
 }
 
-//estilos para la sección de productos, con un diseño tipo MacOS moderno y elegante
+// estilo tabla tipo 
 .table {
   margin-bottom: 0;
   thead th {
@@ -62,7 +61,7 @@
   }
 }
 
-// Estilos para los botones de acción (Editar y Eliminar) con un diseño tipo MacOS moderno y elegante
+//botones editar y eliminar (Light)
 .btn-cool {
   background: transparent;
   border: none;
@@ -71,7 +70,7 @@
   position: relative;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-  // Estilo base para los iconos dentro de los botones
+  // Estilo del icono dentro del botón con un diseño tipo MacOS moderno y elegante
   .icon-blob {
     width: 32px;
     height: 32px;
@@ -98,7 +97,7 @@
     }
   }
 
-//editar esta en azul fuerte, con un diseño tipo MacOS moderno y elegante
+// editar color azul intenso
   &.edit .icon-blob {
     color: #0368ff; 
     background: rgba(0, 77, 192, 0.2); 
@@ -106,12 +105,12 @@
     border: 2px solid rgba(0, 77, 192, 0.4); 
   }
 
-  //estilo para el botón de eliminar 
+  // eliminar color rojo intenso
   &.delete .icon-blob {
     color: #ff0019; 
-    background: rgba(211, 26, 44, 0.2);
+    background: rgba(211, 26, 44, 0.2); 
     box-shadow: 0 4px 10px rgba(211, 26, 44, 0.15);
-    border: 2px solid rgba(211, 26, 44, 0.4); 
+    border: 2px solid rgba(211, 26, 44, 0.4);
   }
 
   &:hover {
@@ -129,7 +128,7 @@
     }
 
     &.delete .icon-blob {
-      background: #d31a2c; 
+      background: #d31a2c;
       color: white;
       box-shadow: 0 8px 20px rgba(211, 26, 44, 0.5);
       border-color: #a31422;
@@ -149,6 +148,7 @@
 // Mejoras de contraste para los datos secundarios
 .text-secondary {
   color: #3a3a3c !important; 
+}
 
 // Botón Refrescar (Light)
 .btn-light {
@@ -199,5 +199,4 @@
   &:active {
     transform: scale(0.95);
   }
-}
 }

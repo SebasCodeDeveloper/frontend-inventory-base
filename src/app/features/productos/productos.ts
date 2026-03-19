@@ -97,11 +97,14 @@ export class Productos implements OnInit {
     this.notify.askConfirmation(() => {
       this.productService.deleteProduct(id).subscribe({
         next: () => {
-          console.log(`Producto con ID ${id} eliminado exitosamente.`);
           this.cargarProductos();
           this.notify.show('delete', 'Product');
         },
-        error: () => (this.errorMessage = 'Error al eliminar producto.'),
+        error: (err) => {
+          const backMsg = err.error?.message || 'Error al eliminar producto.';
+          this.notify.show('error', 'Product', backMsg);
+          this.notify.show('error', 'Orden', backMsg, 'No se pedió eliminar el producto porque tiene órdenes asociadas');
+        }
       });
     });
   }
