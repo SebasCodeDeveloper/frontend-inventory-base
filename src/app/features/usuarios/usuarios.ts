@@ -90,15 +90,17 @@ export class Usuarios implements OnInit {
 
 // Función para eliminar un usuario, mostrando primero un modal de confirmación
   eliminarUsuario(id: any): void {
-    // Le decimos al servicio: "Cuando el usuario confirme en el modal, ejecuta esto"
     this.notify.askConfirmation(() => {
       this.userService.deleteUser(id).subscribe({
         next: () => {
-          this.cargarUsuarios(); 
           this.notify.show('delete', 'User'); 
+          this.cargarUsuarios(); 
         },
-        error: () => {
-          this.errorMessage = 'Error al eliminar usuario.';
+        error: (err) => {
+          const backMsg = err.error?.message || 'No se pudo eliminar el registro.';
+          this.notify.show('error', 'User', backMsg);
+
+              this.notify.show('error', 'Orden', backMsg, 'No se pudo eliminar el usuario porque tiene órdenes asociadas');
         },
       });
     });
