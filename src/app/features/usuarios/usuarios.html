@@ -1,16 +1,26 @@
-<!-- User Management -->
+<!-- Título de la sección -->
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="text-dark fw-bold mb-0" style="letter-spacing: -1px;">
       Gestión de Usuarios <i class="bi bi-person-badge ms-2" style="color: #060707;"></i>
     </h2>
 
-    <!-- Botones de acción -->
+    <!-- Grupo de acciones: buscar, refrescar y crear -->
     <div class="d-flex gap-2">
+      <!-- Input de búsqueda por email -->
+      <div class="input-group input-group-sm shadow-sm" style="width: 250px;">
+        <input type="text" class="form-control border-32 rounded-pill px-3" placeholder="Buscar usuario..."
+          [(ngModel)]="emailBusqueda" (keyup.enter)="buscarPorEmail()">
+
+      </div>
+
+      <!-- Botón para recargar todas las usuarios -->
       <button class="btn btn-light d-flex align-items-center shadow-sm rounded-pill px-3" (click)="cargarUsuarios()"
         style="border: 1px solid #ddd;">
         <i class="bi bi-arrow-clockwise me-1"></i> Refrescar
       </button>
+
+      <!-- Botón para crear una nuevo usuario -->
       <button class="btn btn-dark d-flex align-items-center shadow-sm rounded-pill px-3" data-bs-toggle="modal"
         data-bs-target="#userModal" (click)="usuarioSeleccionado = null">
         <i class="bi bi-plus-lg me-1"></i> New User
@@ -24,7 +34,8 @@
     <strong><i class="bi bi-exclamation-circle-fill"></i> Error:</strong> {{ errorMessage }}
     <button type="button" class="btn-close" (click)="errorMessage = null"></button>
   </div>
-  <!-- Indicador de carga -->
+
+  <!-- espera de recrga de la tabla  -->
   <div *ngIf="isLoading" class="text-center my-5">
     <div class="spinner-border text-dark" role="status" style="width: 3rem; height: 3rem;">
       <span class="visually-hidden">Cargando...</span>
@@ -32,15 +43,16 @@
     <p class="mt-2 text-muted">Consultando base de datos...</p>
   </div>
 
-  <!-- Tabla de usuarios -->
+  <!-- Encabezado visual -->
   <div *ngIf="!isLoading" class="card mac-table-container shadow-sm border-0">
     <div class="mac-header d-flex align-items-center pe-3 ps-2">
       <span class="ms-1 small fw-medium text-muted" style="font-size: 0.75rem;">User Database</span>
     </div>
 
-    <!-- Tabla responsive -->
+    <!-- Contenedor responsive para la tabla -->
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
+        <!-- Cabecera de la tabla -->
         <thead>
           <tr>
             <th class="ps-4">Nombre</th>
@@ -49,28 +61,38 @@
             <th class="text-center">Acciones</th>
           </tr>
         </thead>
+
+        <!-- Cuerpo de la tabla -->
         <tbody>
+          <!-- Iteración de la lista de usuarios -->
           <tr *ngFor="let user of listaUsuarios">
+            <!-- Información del propietario (email) -->
             <td class="ps-4">
               <div class="fw-semibold text-dark">{{ user.name }}</div>
             </td>
+            <!-- Email del usuario -->
             <td class="text-secondary">{{ user.email }}</td>
             <td>
+              <!-- edad con estilos  -->
               <span class="badge rounded-pill px-3"
                 style="background: rgba(0, 122, 255, 0.1); color: #007aff; font-weight: 600;">
                 {{ user.age }} años
               </span>
             </td>
-            <td class="text-center">
 
-              <!-- Botones de acción para cada usuario -->
+            <!-- Acciones disponibles para cada usuario -->
+            <td class="text-center">
               <div class="d-flex justify-content-center gap-2">
+                <!-- Botón para editar (abre modal) -->
                 <button class="btn-cool edit" (click)="usuarioSeleccionado = user" data-bs-toggle="modal"
                   data-bs-target="#userModal">
                   <div class="icon-blob">
                     <i class="bi bi-cpu"></i>
                   </div>
                 </button>
+
+
+                <!-- Botón para eliminar la usuario -->
                 <button class="btn-cool delete" (click)="eliminarUsuario(user.id)">
                   <div class="icon-blob">
                     <i class="bi bi-fire"></i>
@@ -84,7 +106,8 @@
     </div>
   </div>
 </div>
-<!-- Modal para agregar/editar usuario -->
+
+<!-- Modal para creación/edición de usuario -->
 <div class="modal fade" id="userModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
   aria-labelledby="userModalLabel">
   <div class="modal-dialog modal-dialog-centered">

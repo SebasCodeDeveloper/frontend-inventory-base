@@ -3,6 +3,11 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 
+/**
+ * COMPONENTE NÚCLEO: Formulario Dinámico Universal.
+ * Se encarga de construir campos en tiempo real, gestionar validaciones,
+ * capturar errores del Backend y controlar el estado de los modales de Bootstrap.
+ */
 @Component({
   selector: 'app-dynamic-form',
   standalone: true,
@@ -11,26 +16,38 @@ import { Observable } from 'rxjs';
   styleUrl: './dynamic-form.scss',
 })
 export class DynamicFormComponent implements OnDestroy, AfterViewInit {
-  // Outputs para comunicar al padre cuando una operación fue exitosa o cuando se cancela la edición/creación
+  //Notifica al componente padre que el guardado fue exitoso para refrescar tablas
   @Output() operationSuccess = new EventEmitter<void>();
+  //Notifica cuando el usuario cancela o cierra el modal
   @Output() onCancel = new EventEmitter<void>();
 
-// Inputs para configurar el formulario dinámico
+  //Título dinámico (Ej: 'User', 'Product')
   @Input() title: string = 'Record';
-  @Input() fields: any[] = []; 
+  //Array de objetos que definen la estructura del formulario (nombre, tipo, validadores)
+  @Input() fields: any[] = [];
+  // ID del modal en el DOM para poder suscribirse a sus eventos de cierre
   @Input() modalId: string = 'genericModal';
-  
-  // La función que guarda (viene del padre)
+
+  /** * REFERENCIA DE FUNCIÓN: Recibe una función del padre (saveUserAction o saveProductAction)
+   * que retorna un Observable. Esto permite que el formulario sea agnóstico a los datos.
+   */
   @Input() saveAction!: (data: any, id?: any) => Observable<any>;
 
   form: FormGroup;
+  //Almacena mensajes de error procesados que vienen del servidor (API)
   backendErrors: string[] = [];
+  //ID del registro actual; si existe, el formulario entra en 'Modo Edición
   id: any = null;
   isEditMode = false;
 
+//Referencia a la función de limpieza para poder remover el listener correctamente
   private modalListener = () => this.ejecutarLimpiezaSilenciosa();
 
-  // Este setter se encarga de cargar los datos en el formulario cuando se recibe un objeto para editar, o limpiar el formulario si se recibe null (para crear nuevo)
+/**
+   * SETTER INTELIGENTE: Detecta cambios en los datos a editar.
+   * Si recibe 'data', rellena el formulario automáticamente (patchValue).
+   * Si recibe 'null', resetea el formulario para una nueva creación.
+   */ 
   @Input() set dataToEdit(data: any) {
     if (data) {
       this.id = data.id;
@@ -43,17 +60,26 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
     }
   }
 
+  /**
+   *  Construye los controles del Reactive Form basándose 
+   * en la configuración recibida en el Input 'fields'.
+   */
   constructor(private fb: FormBuilder) {
-    this.form = this.fb.group({}); 
+    this.form = this.fb.group({});
   }
 
-  // En este método se crean los controles del formulario dinámicamente según los campos recibidos por input
+/**
+   * Suscribe el componente al evento 'hidden.bs.modal' de Bootstrap.
+   * Esto asegura que si el usuario cierra el modal con la tecla 'Esc' o clic fuera,
+   * el formulario se limpie automáticamente.
+   */
   ngOnInit() {
-    this.fields.forEach(field => {
+    this.fields.forEach((field) => {
       this.form.addControl(field.name, this.fb.control('', field.validators));
     });
   }
-// Agregamos un listener al modal para limpiar el formulario cada vez que se cierre, evitando que queden datos o errores al abrirlo nuevamente
+  
+  // Agregamos un listener al modal para limpiar el formulario cada vez que se cierre, evitando que queden datos o errores al abrirlo nuevamente
   ngAfterViewInit() {
     const modalElement = document.getElementById(this.modalId);
     if (modalElement) {
@@ -61,7 +87,9 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
     }
   }
 
-  // Limpiamos el formulario y los errores cuando se cierra el modal para evitar que queden datos o mensajes de error al abrirlo nuevamente
+/**
+   * Elimina el listener del DOM para evitar fugas de memoria (Memory Leaks).
+   */
   ngOnDestroy(): void {
     const modalElement = document.getElementById(this.modalId);
     if (modalElement) {
@@ -69,15 +97,21 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
     }
   }
 
-// Este método se encarga de cerrar el modal y limpiar el formulario completamente (incluyendo errores) después de una operación exitosa
+/**
+   *  Simula un clic en el botón de cierre del modal programáticamente.
+   */
   resetFormTotal(): void {
-  const closeBtn = document.querySelector(`#${this.modalId} [data-bs-dismiss="modal"]`) as HTMLElement;
-  if (closeBtn) {
-    closeBtn.click();
+    const closeBtn = document.querySelector(
+      `#${this.modalId} [data-bs-dismiss="modal"]`,
+    ) as HTMLElement;
+    if (closeBtn) {
+      closeBtn.click();
+    }
   }
-}
 
-// Este método se encarga de limpiar el formulario y los errores sin cerrar el modal (para casos como "Guardar y seguir editando")
+/**
+   * Lógica interna para dejar el componente en su estado inicial (sin errores ni IDs).
+   */
   private ejecutarLimpiezaSilenciosa(): void {
     this.form.reset();
     this.backendErrors = [];
@@ -86,9 +120,12 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
     this.onCancel.emit();
   }
 
-  // Método que se ejecuta al enviar el formulario, se encarga de llamar a la función de guardado y manejar la respuesta
+  /**
+   * Envío de Formulario Valida, limpia errores previos y ejecuta la 'saveAction'.
+   * Maneja el éxito cerrando el modal y el error procesando la respuesta de la API.
+   */
   onSubmit() {
-    if (this.form.invalid) return
+    if (this.form.invalid) return;
     this.backendErrors = [];
     this.saveAction(this.form.value, this.id).subscribe({
       next: () => {
@@ -99,7 +136,10 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
     });
   }
 
-  // Este método se encarga de interpretar los errores del backend y mostrarlos en el formulario
+/**
+   * Interpreta diferentes formatos de error del Backend.
+   * Maneja tanto strings simples como arrays de mensajes (típicos de NestJS/class-validator).
+   */
   private handleBackendErrors(err: any) {
     if (err.error) {
       const body = err.error;

@@ -6,6 +6,10 @@ import { NotificationService } from '../../core/services/notification';
 import { OrderService } from '../../core/services/order';
 import { OrderDetailModalComponent } from '../../shared/components/order-detail-modal/order-detail-modal';
 
+/**
+ * Componente principal para la gestión y visualización de órdenes.
+ * Implementa lógica de filtrado por email y acciones de control de estado.
+ */
 @Component({
   selector: 'app-ordenes',
   standalone: true,
@@ -14,10 +18,15 @@ import { OrderDetailModalComponent } from '../../shared/components/order-detail-
   styleUrl: './ordenes.scss',
 })
 export class Ordenes implements OnInit {
+//Listado de órdenes obtenidas desde el servidor
   listaOrdenes: OrderReportRs[] = [];
+//Flag para mostrar el spinner de carga en la UI
   isLoading: boolean = false;
+//Almacena mensajes de error para alertas rápidas en el template
   errorMessage: string | null = null;
+//Orden seleccionada para ser enviada al modal de detalle
   ordenSeleccionada: OrderReportRs | null = null;
+//Variable vinculada al input de búsqueda (Two-way binding)
   emailBusqueda: string = '';
 
   constructor(
@@ -25,10 +34,16 @@ export class Ordenes implements OnInit {
     public notify: NotificationService,
   ) {}
 
+  /**
+   * Ciclo de vida: Carga inicial de datos al montar el componente.
+   */
   ngOnInit(): void {
     this.cargarOrdenes();
   }
 
+  /**
+   * Recupera todas las órdenes (Reporte Global).
+   */
   cargarOrdenes(): void {
     this.isLoading = true;
     this.orderService.getOrdersReport().subscribe({
@@ -43,6 +58,9 @@ export class Ordenes implements OnInit {
     });
   }
 
+  /**
+   * Realiza una búsqueda filtrada. Si el campo está vacío, restaura la lista completa.
+   */
   buscarPorEmail(): void {
     if (!this.emailBusqueda.trim()) {
       this.cargarOrdenes();
@@ -56,12 +74,16 @@ export class Ordenes implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        this.notify.show('error', 'Orden', 'No se encontraron órdenes', err.error?.message);
+        this.notify.show('error', 'Orden', err.error?.message, 'Verificarlos datos ingresados.');
         this.isLoading = false;
       },
     });
   }
 
+  /**
+   * Procesa la eliminación de una orden previa confirmación del usuario.
+   * Contiene lógica de validación para estados restringidos (PAGADO/CANCELADO).
+   */
   eliminarOrden(id: string): void {
     this.notify.askConfirmation(() => {
       this.orderService.eliminarOrden(id).subscribe({
@@ -87,10 +109,17 @@ export class Ordenes implements OnInit {
     });
   }
 
+  /**
+   * Asigna la orden actual para que el @Input del modal la reciba y se abra.
+   */
   verDetalle(orden: OrderReportRs): void {
     this.ordenSeleccionada = orden;
   }
 
+  /**
+   * Genera dinámicamente el estilo CSS (Glassmorphism) para los badges de estado.
+   * @param status Estado de la orden (PAID, CREATED, CANCELLED).
+   */
   getStatusStyles(status: string) {
     switch (status) {
       case 'PAID':

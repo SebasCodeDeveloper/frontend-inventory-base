@@ -1,25 +1,38 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ProductRs } from '../../core/models/product.model';
+import { GetProductByNameRq, ProductRs } from '../../core/models/product.model';
 import { ProductService } from '../../core/services/product';
 import { NotificationService } from '../../core/services/notification';
 import { DynamicFormComponent } from '../../shared/components/dynamic-form/dynamic-form';
-import { Validators } from '@angular/forms';
+import { FormsModule, Validators } from '@angular/forms';
 
+/**
+ * Componente para la gestión del catálogo de productos.
+ * Permite listar, buscar, crear, editar y eliminar productos utilizando un formulario dinámico.
+ */
 @Component({
   selector: 'app-productos',
   standalone: true,
-  imports: [CommonModule, DynamicFormComponent],
+  imports: [CommonModule, DynamicFormComponent, FormsModule],
   templateUrl: './productos.html',
   styleUrl: './productos.scss',
 })
 export class Productos implements OnInit {
+//Colección de productos recuperada del backend 
   listaProductos: ProductRs[] = [];
+//Estado de carga para mostrar indicadores visuales (spinners)
   isLoading: boolean = false;
+//Mensaje de error para alertas rápidas en la interfaz
   errorMessage: string | null = null;
+//Producto actualmente en edición (null si es creación nueva)
   productoSeleccionado: ProductRs | null = null;
+//Término de búsqueda para filtrar por nombre
+  nameBusqueda : string ='';
 
-// Definición de los campos para el formulario dinámico
+/**
+   * Configuración de campos para el componente 'app-dynamic-form'.
+   * Define etiquetas, tipos de datos y validaciones reactivas.
+   */
   productFields = [
     {
       name: 'name',
@@ -55,21 +68,35 @@ export class Productos implements OnInit {
   ngOnInit(): void {
     this.cargarProductos();
   }
-  // Método para manejar la acción de guardar (crear o actualizar)
+
+  /**
+   * Función de orden superior que decide si llamar a 'update' o 'create' 
+   * según la presencia de un ID. Se pasa como referencia al formulario dinámico.
+   */
   saveProductAction = (data: any, id?: string) => {
     return id
       ? this.productService.updateProduct(id, data)
       : this.productService.createProduct(data);
   };
-  // Método para preparar el formulario de creación (limpiar selección)
+
+/**
+   * Limpia la selección para asegurar que el modal se abra en modo "Creación".
+   */
   prepararNuevoProducto(): void {
     this.productoSeleccionado = null;
   }
-// Método para preparar el formulario de edición con los datos del producto seleccionado
+
+/**
+   * Carga los datos de un producto en el estado local para enviarlos al modal de edición.
+   * @param product El producto a editar.
+   */
   editarProducto(product: ProductRs): void {
     this.productoSeleccionado = { ...product };
   }
-  // Método para manejar el éxito de la operación (crear o actualizar)
+
+/**
+   * Callback ejecutado cuando el formulario dinámico termina una operación exitosa.
+   */
   onProductOperationSuccess() {
     const action = this.productoSeleccionado ? 'update' : 'create';
     this.cargarProductos();
@@ -77,7 +104,9 @@ export class Productos implements OnInit {
     this.productoSeleccionado = null;
   }
 
-// Método para cargar productos desde el backend
+/**
+   * Consulta el catálogo completo de productos.
+   */
   cargarProductos(): void {
     this.isLoading = true;
     this.productService.getProducts().subscribe({
@@ -86,26 +115,66 @@ export class Productos implements OnInit {
         this.isLoading = false;
       },
       error: () => {
-        this.errorMessage = 'No se pudo conectar con el servidor Backend.';
+        this.errorMessage = 'No se pudo conectar con el servidor.';
         this.isLoading = false;
       },
     });
   }
 
-//metodo para eliminar un producto
-  eliminarProducto(id: string): void {
-    this.notify.askConfirmation(() => {
-      this.productService.deleteProduct(id).subscribe({
-        next: () => {
+/**
+   * Realiza una búsqueda por nombre. Si el input está vacío, recarga todo el catálogo.
+   */
+   buscarPorEmail(): void {
+        if (!this.nameBusqueda.trim()) {
           this.cargarProductos();
-          this.notify.show('delete', 'Product');
-        },
-        error: (err) => {
-          const backMsg = err.error?.message || 'Error al eliminar producto.';
-          this.notify.show('error', 'Product', backMsg);
-          this.notify.show('error', 'Orden', backMsg, 'No se pedió eliminar el producto porque tiene órdenes asociadas');
+          return;
         }
-      });
+        const request: GetProductByNameRq = { productName: this.nameBusqueda.trim() };
+        this.isLoading = true;
+        this.productService.getByName(request).subscribe({
+          next: (data) => {
+            this.listaProductos = data;
+            this.isLoading = false;
+          },
+          error: (err) => {
+            this.notify.show('error', 'Product', err.error?.message, 'Verifique los datos ingresados');
+            console.log(this.notify)
+            this.isLoading = false;
+          },
+        });
+      }
+
+/**
+   * Gestiona la eliminación de un producto.
+   * Si el producto tiene ventas asociadas, intenta eliminar y maneja la excepción del backend.
+   * Si está limpio, solicita confirmación previa al usuario.
+   */
+eliminarProducto(producto: ProductRs): void {
+ 
+  const tieneVentas = (producto.orderDetails && producto.orderDetails.length > 0);
+
+  if (tieneVentas) {
+    this.productService.deleteProduct(producto.id).subscribe({
+      error: (err) => {
+        const backMsg = err.error?.message;
+        this.notify.show('error', 'Product', backMsg, 'No se pudo completar la acción');
+      }
     });
+    return;
   }
+
+// Si no tiene ventas, sigue la  lógica normal de confirmación
+  this.notify.askConfirmation(() => {
+    this.productService.deleteProduct(producto.id).subscribe({
+      next: () => {
+        this.cargarProductos();
+        this.notify.show('delete', 'Product');
+      },
+      error: (err) => {
+        const backMsg = err.error?.message || 'Error al eliminar producto.';
+        this.notify.show('error', 'Product', backMsg, 'No se pudo completar la acción');
+      }
+    });
+  });
+}
 }
