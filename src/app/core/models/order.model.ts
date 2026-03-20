@@ -1,30 +1,42 @@
-import { ProductItemRs, OrderDetailRq} from './order-detail.model';
+import { ProductItemRs, OrderDetailRq } from './order-detail.model';
 
-// Modelo para representar el estado de una orden
+/**
+ * Enumerado que define los estados posibles en una orden en el sistema.
+ * Ayuda a tener la consistencia visual en las etiquetas (badges) en la UI
+ */
 export enum OrderStatus {
   CREATED = 'CREATED',
   PAID = 'PAID',
   CANCELLED = 'CANCELLED',
-  IN_PROGRESS = 'IN_PROGRESS'
+  IN_PROGRESS = 'IN_PROGRESS',
 }
 
-// Modelo para representar una orden
+/**
+ * Interfaz para el reporte detallado de una orden (Respose)
+ * Contiene toda la información necesaria para la mostrar el historial  o un recibo al usuario
+ */
 export interface OrderReportRs {
   orderId: string;
   email: string;
   status: OrderStatus;
   total: number;
-  createdAt: string; 
-  items: ProductItemRs[]; 
+  createdAt: string;
+  items: ProductItemRs[];
 }
 
-// Modelo para representar una orden
+/**
+ * Interfaz para la creación de una nueva  orden (Request)
+ * Estructura minima requerida por el servidor para procesar una compra
+ */
 export interface OrderRq {
   email: string;
   items: OrderDetailRq[];
 }
 
-// Modelo para representar una orden
+/**
+ * Interfaz para la consulta de órdenes filtradas por correo electronico (Resquest)
+ *  Se utiliza en el  buscador de historial de pedidos
+ */
 export interface GetOrderByEmailRq {
   email: string;
 }

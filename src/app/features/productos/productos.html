@@ -1,42 +1,56 @@
+<!-- Título de la sección -->
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="text-dark fw-bold mb-0" style="letter-spacing: -1px;">
-       Gestión de Productos <i class="bi bi-box-seam ms-2" style="color: #060707;"></i>
+      Gestión de Productos <i class="bi bi-box-seam ms-2" style="color: #060707;"></i>
     </h2>
+    <!-- Grupo de acciones: buscar, refrescar y crear -->
+    <div class="d-flex gap-2">
 
-    <div class="d-flex gap-2"> 
+      <!-- Input de búsqueda por nombre -->
+       <div class="input-group input-group-sm shadow-sm" style="width: 250px;">
+        <input type="text" class="form-control border-32 rounded-pill px-3" placeholder="Buscar Producto.."
+          [(ngModel)]="nameBusqueda" (keyup.enter)="buscarPorEmail()">
+      </div>
+
+      <!-- Botón para recargar todas las órdenes -->
       <button class="btn btn-light d-flex align-items-center shadow-sm rounded-pill px-3" (click)="cargarProductos()">
         <i class="bi bi-arrow-clockwise me-1"></i> Refrescar
       </button>
-      <button class="btn btn-dark d-flex align-items-center shadow-sm rounded-pill px-3" 
-              data-bs-toggle="modal" data-bs-target="#productModal"
-              (click)="prepararNuevoProducto()">
+
+      <!-- Botón para crear una nueva orden -->
+      <button class="btn btn-dark d-flex align-items-center shadow-sm rounded-pill px-3" data-bs-toggle="modal"
+        data-bs-target="#productModal" (click)="prepararNuevoProducto()">
         <i class="bi bi-plus-lg me-1"></i> New Product
       </button>
     </div>
   </div>
 
-    <!-- Sección de mensajes de error y carga -->
+  <!-- Sección de mensajes de error y carga -->
   <div *ngIf="errorMessage" class="alert border-0 shadow-sm mb-4" role="alert"
     style="background: rgba(255, 59, 48, 0.1); color: #ff3b30; border-radius: 12px;">
     <strong><i class="bi bi-exclamation-circle-fill"></i> Error:</strong> {{ errorMessage }}
     <button type="button" class="btn-close" (click)="errorMessage = null"></button>
   </div>
 
+  <!-- espera de recrga de la tabla  -->
   <div *ngIf="isLoading" class="text-center my-5">
-     <div class="spinner-border text-dark" role="status"style="width: 3rem; height: 3rem;">
+    <div class="spinner-border text-dark" role="status" style="width: 3rem; height: 3rem;">
       <span class="visually-hidden">Cargando...</span>
     </div>
     <p class="mt-2 text-muted">Consultando base de datos...</p>
   </div>
-  
-<!-- Tabla de productos -->
+
+  <!-- Encabezado visual -->
   <div *ngIf="!isLoading" class="card mac-table-container shadow-sm border-0">
     <div class="mac-header d-flex align-items-center pe-3 ps-2">
-        <span class="ms-1 small fw-medium text-muted" style="font-size: 0.75rem;">Inventory Database</span>
+      <span class="ms-1 small fw-medium text-muted" style="font-size: 0.75rem;">Inventory Database</span>
     </div>
+
+    <!-- Contenedor responsive para la tabla -->
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
+        <!-- Cabecera de la tabla -->
         <thead>
           <tr>
             <th class="ps-4">Producto</th>
@@ -45,36 +59,50 @@
             <th class="text-center">Acciones</th>
           </tr>
         </thead>
+
+        <!-- Cuerpo de la tabla -->
         <tbody>
+          <!-- Iteración de la lista de productos -->
           <tr *ngFor="let prod of listaProductos">
+
+            <!-- Información del propietario (email + ID corto) -->
             <td class="ps-4">
-                <div class="fw-semibold text-dark">{{ prod.name }}</div>
-                <div class="text-muted small">ID: {{ prod.id.substring(0,8) }}...</div>
+              <div class="fw-semibold text-dark">{{ prod.name }}</div>
+              <div class="text-muted small">ID: {{ prod.id.substring(0,8) }}...</div>
             </td>
-            <td class="fw-bold text-dark">$ {{ prod.price | number:'1.2-2' }}</td>
+
+            <!-- Precio en unidad  formateado en moneda COP -->
+            <td class="fw-bold text-dark">{{ prod.price |currency: 'COP ': 'code'}}</td>
+
+            <!-- Estado y cantidad con estilos dinámicos -->
             <td>
-              <span class="badge rounded-pill px-3" 
-                [ngStyle]="{'background': prod.stock < 10 ? 'rgba(211, 26, 44, 0.15)' : 'rgba(39, 201, 63, 0.15)', 
+              <span class="badge rounded-pill px-3" [ngStyle]="{'background': prod.stock < 10 ? 'rgba(211, 26, 44, 0.15)' : 'rgba(39, 201, 63, 0.15)', 
                             'color': prod.stock < 10 ? '#d31a2c' : '#1aab29'}">
                 {{ prod.stock }} {{ prod.stock === 1 ? 'und' : 'unds' }}
               </span>
             </td>
+
+            <!-- Acciones disponibles para cada producto -->
             <td class="text-center">
               <div class="d-flex justify-content-center gap-2">
-                <button class="btn-cool edit" (click)="editarProducto(prod)" data-bs-toggle="modal" data-bs-target="#productModal">
-              <div class="icon-blob">
+
+                <!-- Botón para editar (abre modal) -->
+                <button class="btn-cool edit" (click)="editarProducto(prod)" data-bs-toggle="modal"
+                  data-bs-target="#productModal">
+                  <div class="icon-blob">
                     <i class="bi bi-cpu"></i>
-                
-                </div>
+                  </div>
                 </button>
-                <button class="btn-cool delete" (click)="eliminarProducto(prod.id)">
-                 <div class="icon-blob">
+
+                <!-- Botón para eliminar la producto -->
+                <button class="btn-cool delete" (click)="eliminarProducto(prod)">
+                  <div class="icon-blob">
                     <i class="bi bi-fire"></i>
                     <!--ICONO DEBASURA 
                          <div class="icon-blob">
                         <i class="bi bi-fire"></i> -->
-                   
-                </div>
+
+                  </div>
                 </button>
               </div>
             </td>
@@ -92,15 +120,9 @@
     <div class="modal-content border-0 bg-transparent">
       <div class="modal-body p-0">
 
-        <app-dynamic-form 
-          *ngIf="!isLoading"
-          [title]="'Product'" 
-          [modalId]="'productModal'" 
-          [fields]="productFields"
-          [dataToEdit]="productoSeleccionado" 
-          [saveAction]="saveProductAction" 
-          (operationSuccess)="onProductOperationSuccess()"
-          (onCancel)="productoSeleccionado = null">
+        <app-dynamic-form *ngIf="!isLoading" [title]="'Product'" [modalId]="'productModal'" [fields]="productFields"
+          [dataToEdit]="productoSeleccionado" [saveAction]="saveProductAction"
+          (operationSuccess)="onProductOperationSuccess()" (onCancel)="productoSeleccionado = null">
         </app-dynamic-form>
 
       </div>

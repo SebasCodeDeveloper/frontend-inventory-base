@@ -1,4 +1,3 @@
-// src/environments/environment.ts
 /**
  * Configuración del entorno de la aplicación.
  * En este archivo se definen las variables de entorno que se utilizan en la aplicación.

@@ -1,15 +1,41 @@
-// Este archivo define las interfaces para representar la estructura de los datos de productos, tanto para recibir del backend (ProductRs) como para enviar al backend (ProductRq).
+/**
+ * Interfaz que representa la respuesta detallada de un producto desde el servidor (Resquest)
+ * Se utiliza para visualizar el catalogo de la tabla  y gestionar el stock disponible.
+ */
 export interface ProductRs {
   id: string;
   name: string;
   price: number;
   stock: number;
+  orderDetails: OrderDetails[];
 }
-// "ProductRq" es la interfaz para la solicitud que se envía al servidor cuando se crea o actualiza un producto. El campo "id" es opcional porque en la creación no se envía, pero en la actualización sí.
+
+/**
+ * Representa el desglose técnico de un producto dentro de una orden espesifica
+ * Proporciona trazabilidad sobre cantidades  precos históricos
+ */
+export interface OrderDetails {
+  id: string;
+  quantity: number;
+  subtotal: number;
+  unitPrice: number;
+}
+
+/**
+ * Estructura para la trasnfencia de datos de producto hacia el servidor (Request
+ * Utilizado tanto para el registro inicial como para la actualización de datos existentes.
+ */
 export interface ProductRq {
-  // Opcional porque en creación no se envía
-  id?: string; 
+  id?: string;
   name: string;
   price: number;
   stock: number;
+}
+
+/**
+ * Modelo de solicitud especializado para la búsqueda filtrada de productos.
+ * Coincide con el objeto 'Record' esperado por el endpoint del Backend.
+ */
+export interface GetProductByNameRq {
+  productName: string;
 }
