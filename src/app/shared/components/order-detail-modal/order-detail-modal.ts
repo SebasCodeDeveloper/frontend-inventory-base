@@ -29,8 +29,8 @@ cancelar(): void {
         this.actionCompleted.emit();
       },
       error: (err) => {
-        const backErrorMsg = err.error?.message || 'The operation could not be completed.';
-        this.notify.show('error', 'Orden', backErrorMsg, 'System Error');
+        const backErrorMsg = err.error?.message;
+        this.notify.show('error', 'Orden', backErrorMsg, 'No se pudo completar la acción');
       }
     });
   });

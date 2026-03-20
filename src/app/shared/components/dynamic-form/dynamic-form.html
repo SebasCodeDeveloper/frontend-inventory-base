@@ -10,7 +10,7 @@
     </p>
   </div>
 
-<!-- Contenedor de errores del servidor -->
+  <!-- Contenedor de errores del servidor -->
   <div *ngIf="backendErrors.length > 0" class="mb-3 server-errors-container">
     <div *ngFor="let error of backendErrors" class="mac-error-text server-error">
       <i class="bi bi-exclamation-triangle-fill"></i> {{ error }}
@@ -22,35 +22,34 @@
     <label class="mac-label" [class.text-mac-blue]="form.get(field.name)?.invalid && form.get(field.name)?.touched">
       {{ field.label }}
     </label>
-    
-    <input 
-      [type]="field.type" 
-      [formControlName]="field.name" 
-      class="mac-input shadow-sm"
+
+    <input [type]="field.type" [formControlName]="field.name" class="mac-input shadow-sm"
       [class.w-50]="field.type === 'number'"
       [class.is-invalid-mac]="form.get(field.name)?.invalid && form.get(field.name)?.touched"
       [placeholder]="field.placeholder || ''">
     <div class="mac-error-text" *ngIf="form.get(field.name)?.invalid && form.get(field.name)?.touched">
-      <i class="bi bi-info-circle-fill"></i> 
+      <i class="bi bi-info-circle-fill"></i>
       <span *ngIf="form.get(field.name)?.errors?.['required']"> Este campo es requerido.</span>
+      <span *ngIf="form.get(field.name)?.errors?.['minlength']">
+        Debe tener al menos {{ form.get(field.name)?.errors?.['minlength'].requiredLength }} letras.</span>
       <span *ngIf="form.get(field.name)?.errors?.['email']"> Formato de correo inválido.</span>
-      
+
       <span *ngIf="form.get(field.name)?.errors?.['min']">
         {{ field.name === 'age' ? 'La edad debe ser mayor a 0.' : 'El stock no puede ser negativo.' }}
       </span>
-      
+
       <span *ngIf="form.get(field.name)?.errors?.['max']"> El valor excede el límite permitido.</span>
     </div>
   </div>
 
-<!-- Botones de acción -->
+  <!-- Botones de acción -->
   <div class="d-flex justify-content-end gap-3 pt-3 border-top border-light">
     <button type="button" id="closeModalBtn" class="btn-mac-secondary" data-bs-dismiss="modal">
       Cancelar
     </button>
     <button type="submit" class="btn-mac-primary shadow" [disabled]="form.invalid">
-      <i class="bi" [ngClass]="isEditMode ? 'bi-save' : 'bi-plus-circle-fill'"></i>
+      <i class="bi" [ngClass]="isEditMode ? 'bi-save' : 'bi bi-sliders'"></i>
       {{ isEditMode ? ' Guardar Cambios' : ' Create ' + title }}
-    </button> 
+    </button>
   </div>
 </form>
