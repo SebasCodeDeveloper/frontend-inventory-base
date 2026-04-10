@@ -9,7 +9,7 @@ declare var bootstrap: any;
 @Injectable({
   providedIn: 'root',
 })
-export class NotificationService {
+export class  NotificationService {
   public modalTitle = '';
   public modalMessage = ''; 
   public modalIcon = '';
@@ -21,9 +21,8 @@ export class NotificationService {
    * @param action Tipo de evento (success, create, update, delete, error).
    * @param entityName Nombre del módulo afectado (ej: 'User', 'Product').
    * @param customTitle (Opcional) Título personalizado para el modal.
-   * @param customMsg (Opcional) Mensaje específico. Si es un Array, se extraerá el primer elemento.
+   * @param customMsg (Opcional) Mensaje específico.
    */
-
   public show(
     action: 'success' | 'create' | 'update' | 'delete' | 'error', 
     entityName: string,
@@ -34,35 +33,28 @@ export class NotificationService {
       success: { title: 'Success', msg: 'Operation completed.', icon: 'bi bi-check-circle text-success' },
       create: { title: 'Created', msg: `New ${entityName.toLowerCase()} active.`, icon: 'bi bi-check-all text-success' },
       update: { title: 'Updated', msg: 'Changes synchronized.', icon: 'bi bi-pencil-square text-primary' },
-      delete: { title: 'Deleted', msg: 'Record purged.', icon: 'bi bi-trash3-fill text-danger' 
-},
-      error: { title: 'System Error', msg: 'The operation could not be completed.', icon: 'bi bi-exclamation-octagon-fill text-warning' },
+      delete: { title: 'Deleted', msg: 'Record purged.', icon: 'bi bi-trash3-fill text-danger' },
+      error: { title: 'Error de conexión', msg: 'The operation could not be completed.', icon: 'bi bi-exclamation-octagon-fill text-warning' },
     };
 
     const config = configs[action];
-
     this.modalTitle = customTitle || `${entityName} ${config.title}`;
     this.modalMessage = customMsg || config.msg;
     this.modalIcon = config.icon;
 
-// Lógica de visualización del Modal de Bootstrap
+    // Lógica de visualización del Modal de Bootstrap
     const modalElement = document.getElementById('notificationModal');
     if (modalElement) {
-      const modalInstance = new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false });
+      this.prepareModalDepth(modalElement);
+      
+      const modalInstance = new bootstrap.Modal(modalElement, { backdrop: true, keyboard: false });
       modalInstance.show();
 
-// Los errores permanecen más tiempo en pantalla (4s) que los éxitos (2.2s)
+      // Los errores permanecen más tiempo en pantalla (4s) que los éxitos (2.2s)
       const duration = action === 'error' ? 4000 : 2200;
       setTimeout(() => {
         modalInstance.hide();
-
-// Limpieza manual del DOM para evitar que el fondo oscuro se quede bloqueado
-        setTimeout(() => {
-          const backdrop = document.querySelector('.modal-backdrop');
-          if (backdrop) backdrop.remove();
-          document.body.classList.remove('modal-open');
-          document.body.style.overflow = '';
-        }, 400);
+        this.cleanupDOM();
       }, duration);
     }
   }
@@ -74,7 +66,12 @@ export class NotificationService {
   public askConfirmation(callback: () => void) {
     this.pendingAction = callback;
     const modalElement = document.getElementById('deleteConfirmModal');
-    if (modalElement) { new bootstrap.Modal(modalElement).show(); }
+    
+    if (modalElement) { 
+      this.prepareModalDepth(modalElement);
+      const modalInstance = new bootstrap.Modal(modalElement, { backdrop: true });
+      modalInstance.show(); 
+    }
   }
 
   /**
@@ -87,6 +84,38 @@ export class NotificationService {
       const modalElement = document.getElementById('deleteConfirmModal');
       const modalInstance = bootstrap.Modal.getInstance(modalElement);
       if (modalInstance) modalInstance.hide();
+      this.cleanupDOM();
     }
+  }
+
+  /**
+   * Ajusta la jerarquía del DOM y el z-index para que el modal aparezca al frente.
+   */
+  private prepareModalDepth(element: HTMLElement) {
+    document.body.appendChild(element);
+    element.style.zIndex = '10001';
+    
+    // Ajuste inmediato del backdrop después de que Bootstrap lo crea
+    setTimeout(() => {
+      const backdrops = document.querySelectorAll('.modal-backdrop');
+      if (backdrops.length > 0) {
+        (backdrops[backdrops.length - 1] as HTMLElement).style.zIndex = '10000';
+      }
+    }, 10);
+  }
+
+  /**
+   * Limpieza manual del DOM para evitar que el fondo oscuro se quede bloqueado.
+   */
+  private cleanupDOM() {
+    setTimeout(() => {
+      if (document.querySelectorAll('.modal.show').length === 0) {
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(b => b.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = ''; 
+      }
+    }, 400);
   }
 }
