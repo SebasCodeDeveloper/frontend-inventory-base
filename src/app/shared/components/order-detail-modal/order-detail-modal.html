@@ -1,46 +1,104 @@
+<!-- Modal para mostrar los detalles de una orden -->
 <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; background: rgba(255,255,255,0.95); backdrop-filter: blur(15px);">
-      
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 580px;">
+    <div class="modal-content border-0 shadow-lg"
+      style="border-radius: 28px; background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);">
+      <!--  ver esrado de la orden-->
       <div class="modal-body p-4" *ngIf="orden">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h4 class="fw-bold mb-0">Resumen de Orden</h4>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        
-        <div class="bg-light p-3 rounded-4 mb-4" style="border: 1px solid rgba(0,0,0,0.05);">
-          <div *ngFor="let item of orden.items" class="d-flex justify-content-between mb-2">
-            <span class="text-secondary small">{{ item.quantity }}x {{ item.productName }}</span>
-            <span class="fw-bold small">$ {{ item.subtotal | number:'1.2-2' }}</span>
+
+        <!-- Encabezado del modal con título e indicador de estado -->
+        <div class="position-relative mb-4">
+          <div class="text-center">
+            <h4 class="fw-bold" style="letter-spacing: -1px; color: #000000;">
+              <i class="bi bi-receipt me-2"></i>Order Details
+            </h4>
+            <!-- Estado de la orden con estilos condicionales -->
+            <span class="badge rounded-pill px-3" [ngClass]="{
+                    'bg-success-subtle text-success': orden.status === 'PAID', 
+                    'bg-primary-subtle text-primary': orden.status === 'CREATED', 
+                    'bg-danger-subtle text-danger': orden.status === 'CANCELLED'
+                  }"
+              style="font-size: 0.75rem; letter-spacing: 0.5px; text-transform: uppercase; border: 1px solid currentColor;">
+              {{ orden.status }}
+            </span>
           </div>
-          <hr class="my-2 opacity-25">
-          <div class="d-flex justify-content-between">
-            <span class="fw-bold">Total</span>
-            <span class="fw-bold text-primary" style="font-size: 1.1rem;">$ {{ orden.total | number:'1.2-2' }}</span>
+          <button type="button" class="btn-close shadow-none position-absolute top-0 end-0"
+            data-bs-dismiss="modal"></button>
+        </div>
+
+        <!-- Detalles del propietario y resumen de la orden -->
+        <div class="rounded-4 p-3 mb-4 shadow-sm" style="background: #f8f9fa; border: 1px solid #e2e8f0;">
+          <div class="d-flex text-muted fw-bold mb-3" style="font-size: 0.65rem; letter-spacing: 1px;">
+            <div style="flex: 1.2;">PRODUCTO</div>
+            <div class="text-center" style="flex: 0.6;">CANT</div>
+            <div class="text-end" style="flex: 1.4;">PRECIO U</div>
+            <div class="text-end" style="flex: 1.5;">SUBTOTAL</div>
+          </div>
+
+          <!-- Listado de productos dentro de la orden -->
+          <div *ngFor="let item of orden.items" class="d-flex align-items-center mb-3 pb-2 border-bottom border-white">
+            <div style="flex: 1.2;">
+              <p class="mb-0 fw-semibold text-dark text-capitalize" style="font-size: 0.85rem; line-height: 1.2;">{{
+                item.productName }}</p>
+            </div>
+            <!-- Cantidad con estilo de badge -->
+            <div class="text-center" style="flex: 0.8;">
+              <span class="badge bg-white text-primary border border-primary-subtle fw-bold rounded-pill shadow-sm"
+                style="font-size: 0.75rem; padding: 0.4em 0.8em;">
+                {{ item.quantity }}
+              </span>
+            </div>
+
+            <!--Precio unitario formateado en moneda COP con estilo de fuente monoespaciada para mejor legibilidad -->
+            <div class="text-end text-muted font-monospace" style="flex: 1.5; font-size: 0.85rem;">
+              {{ item.unitPrice | currency: 'COP ': 'symbol-narrow': '1.0-0' }}
+            </div>
+            <!-- Subtotal formateado en moneda COP -->
+            <div class="text-end fw-bold text-dark font-monospace" style="flex: 1.5; font-size: 0.85rem;">
+              {{ item.subTotal | currency: 'COP ': 'symbol-narrow': '1.0-0' }}
+            </div>
+          </div>
+          <!-- Total de la orden con estilo destacado -->
+          <div
+            class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-10">
+            <span class="text-secondary fw-medium">Total de la compra</span>
+            <span class="fw-bold text-dark" style="font-size: 1.6rem; letter-spacing: -1px;">
+              {{ orden.total | currency: 'COP ': 'symbol-narrow': '1.0-0' }}
+            </span>
           </div>
         </div>
 
-        <div class="d-grid gap-2">
-          <button *ngIf="orden.status === 'CREATED'" 
-                  class="btn btn-dark rounded-pill py-2 shadow-sm" 
-                  (click)="pagar()" data-bs-dismiss="modal">
-            <i class="bi bi-credit-card me-2"></i> Pagar Ahora
+        <!-- Acciones disponibles según el estado de la orden -->
+        <div class="text-center mt-2">
+
+          <button *ngIf="orden.status === 'CREATED'"
+            class="btn btn-primary btn-mac-primary px-4 shadow-sm fw-bold border-0 btn-hover-effect mb-3"
+            (click)="pagar()" data-bs-dismiss="modal"
+            style="background: #388eeb; width: 100%; max-width: 460px; padding-top: 12px; padding-bottom: 12px;">
+            <i class="bi bi-credit-card-2-back me-2"></i> Confirmar y Pagar
           </button>
-          
-          <div class="d-flex gap-2">
-            <button *ngIf="orden.status === 'CREATED'" 
-                    class="btn btn-light rounded-pill flex-grow-1 py-2 border shadow-sm">
-              <i class="bi bi-pencil me-1"></i> Editar
+          <!-- Acciones de edición -->
+          <div class="d-flex gap-2 gap-md-3 justify-content-center flex-wrap flex-sm-nowrap">
+            <button *ngIf="orden.status === 'CREATED'"
+              class="btn btn-light rounded-pill px-4 py-2 border shadow-sm fw-bold text-dark btn-hover-eff flex-grow-1 flex-sm-grow-0"
+              style="min-width: 140px; max-width: 225px;">
+              <i class="bi bi-pencil-square me-1"></i> Editar
             </button>
-            <button *ngIf="orden.status !== 'CANCELLED'" 
-                    class="btn btn-outline-danger rounded-pill flex-grow-1 py-2 shadow-sm"
-                    (click)="cancelar()" data-bs-dismiss="modal">
+            <!-- Acciones de Cancelar -->
+            <button *ngIf="orden.status !== 'CANCELLED'"
+              class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm fw-bold btn-hover-eff flex-grow-1 flex-sm-grow-0"
+              (click)="cancelar()" data-bs-dismiss="modal" style="min-width: 140px; max-width: 225px;">
               <i class="bi bi-x-circle me-1"></i> Cancelar
             </button>
           </div>
         </div>
+        <!-- Información de seguridad   -->
+        <div class="mt-4 pt-3 border-top border-light text-center">
+          <p class="text-muted mb-0 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.75rem;">
+            <i class="bi bi-lock-fill text-success"></i> Transacción protegida por el sistema de inventario.
+          </p>
+        </div>
       </div>
-
     </div>
   </div>
 </div>

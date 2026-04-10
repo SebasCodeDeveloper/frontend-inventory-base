@@ -1,0 +1,38 @@
+// Para el botón secundario del modal de creación, que es más sutil
+.btn-hover-eff {
+
+  &:hover:not(:disabled) {
+    transform: scale(1.05);     
+    filter: brightness(1.1);   
+  }
+  
+  &:active:not(:disabled) {
+    transform: scale(0.98);   
+  }
+}
+
+// Para el botón principal del modal de creación, que es más destacado
+.btn-hover-effect {
+    transition: all 0.2s ease-in-out !important;
+
+    &:hover:not(:disabled) {
+        transform: scale(1.05);     
+        filter: brightness(1.1);   
+        box-shadow: 0 0.5rem 1rem rgba(14, 150, 240, 0.4) !important;
+    }
+    
+    &:active:not(:disabled) {
+        transform: scale(0.98);   
+    }
+}
+
+// Ajuste de padding y scroll para el cuerpo del modal, para mejorar la experiencia en móviles
+.btn-mac-primary {
+  border-radius: 20px;
+}
+
+// Estilos generales para el modal, aplicados a ambos modales de creación y detalle
+.btn-py-medium {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}

@@ -1,0 +1,279 @@
+// Estilos personalizados para el modal de creación de órdenes
+.custom-table-header th {
+  background-color: #e2e7f0d0 !important;
+  color: #000000ce !important;
+  border-bottom: none !important;
+  padding-top: 15px !important;
+  padding-bottom: 15px !important;
+  white-space: nowrap;
+}
+
+// Ajuste de ancho del modal para pantallas grandes
+.modal-custom-width {
+  max-width: 1000px;
+  width: 95%;
+}
+
+// Contenedor para mensajes de error con transición suave
+.error-container {
+  height: 18px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+// Ajuste de padding y scroll para el cuerpo del modal
+.modal-body {
+  overflow-y: auto;
+  padding-bottom: 10px;
+}
+
+// Animaciones y efectos de botones para mejorar la experiencia de usuario
+.btn-hover-effect {
+  transition: all 0.2s ease-in-out !important;
+
+  &:hover:not(:disabled) {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+    box-shadow: 0 0.5rem 1rem rgba(14, 150, 240, 0.4) !important;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
+
+// Variante sin sombra para botones secundarios
+.btn-hover-eff {
+  transition: all 0.2s ease-in-out !important;
+
+  &:hover:not(:disabled) {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
+
+// Bloque de estilos para pantallas grandes (escritorio y tablets)
+@media (min-width: 768px) {
+  .btn-add-custom {
+    width: 45px !important;
+    height: 45px !important;
+    margin-top: -5px !important;
+    margin-left: 30px !important;
+  }
+
+  .total-badge-custom {
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+
+  .btn-confirm-custom {
+    margin-left: 1rem !important;
+  }
+}
+
+// Bloque de estilos para pantallas pequeñas (móviles)
+@media (max-width: 767px) {
+  .footer-container-custom {
+    flex-direction: column !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    gap: 12px !important;
+  }
+
+  // Ajuste de orden y tamaño de los elementos en el footer para móvil
+  .total-badge-custom {
+    order: 1;
+    width: 100%;
+  }
+
+  // Ajuste de orden y tamaño de los botones para que sean más accesibles en móvil
+  .btn-confirm-custom {
+    order: 2;
+    width: 100%;
+    margin: 0 !important;
+  }
+
+  // Ajuste de orden y tamaño del botón de descartar para móvil
+  .btn-discard-custom {
+    order: 3;
+    width: 100%;
+    margin: 0 !important;
+  }
+
+  // Ajuste del botón de agregar para que sea más grande y fácil de tocar en móvil
+  .btn-add-custom {
+    width: 100% !important;
+    border-radius: 50px !important;
+    margin: 10px 0 0 0 !important;
+    height: 45px !important;
+  }
+
+// Ajustes específicos para la tabla dentro del modal en móvil para mejorar la legibilidad y usabilidad
+  .table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+  }
+
+  // Forzamos un ancho mínimo a la tabla dentro del contenedor scroll para evitar que se amontone
+  .table-responsive table {
+    min-width: 550px !important;
+    margin-bottom: 0;
+  }
+
+  // Estilos generales de la  tabla para mejorar la legibilidad en móvil
+
+  .custom-table-header th {
+    background-color: #e2e7f0d0 !important;
+    color: #000000ce !important;
+    border-bottom: none !important;
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+    white-space: nowrap;
+  }
+
+  // Ajuste de ancho del modal para pantallas grandes
+  .modal-custom-width {
+    max-width: 1000px;
+    width: 95%;
+  }
+
+  // Contenedor para mensajes de error con transición suave
+  .error-container {
+    height: 18px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  // Ajuste de padding y scroll para el cuerpo del modal
+  .modal-body {
+    overflow-y: auto;
+    padding-bottom: 10px;
+  }
+
+  // Animaciones y efectos de botones para mejorar la experiencia de usuario
+  .btn-hover-effect {
+    transition: all 0.2s ease-in-out !important;
+    &:hover:not(:disabled) {
+      transform: scale(1.05);
+      filter: brightness(1.1);
+      box-shadow: 0 0.5rem 1rem rgba(14, 150, 240, 0.4) !important;
+    }
+    &:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+  }
+
+  // Variante sin sombra para botones secundarios
+  .btn-hover-eff {
+    transition: all 0.2s ease-in-out !important;
+    &:hover:not(:disabled) {
+      transform: scale(1.05);
+      filter: brightness(1.1);
+    }
+    &:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+  }
+
+  // Bloque de estilos para pantallas grandes (escritorio y tablets)
+  @media (min-width: 768px) {
+    .btn-add-custom {
+      width: 45px !important;
+      height: 45px !important;
+      margin-top: -5px !important;
+      margin-left: 30px !important;
+    }
+
+    .total-badge-custom {
+      position: absolute !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+    }
+
+    .btn-confirm-custom {
+      margin-left: 1rem !important;
+    }
+  }
+
+  // Bloque de estilos para pantallas pequeñas (móviles)
+  @media (max-width: 767px) {
+    .modal-body.px-5 {
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+    }
+
+    .modal-footer.px-5 {
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+    }
+
+    .footer-container-custom {
+      flex-direction: column !important;
+      gap: 12px !important;
+    }
+
+    .total-badge-custom {
+      order: 1;
+      width: 100%;
+    }
+
+    .btn-confirm-custom {
+      order: 2;
+      width: 100%;
+      margin: 0 !important;
+    }
+
+    .btn-discard-custom {
+      order: 3;
+      width: 100%;
+      margin: 0 !important;
+    }
+
+    .btn-add-custom {
+      width: 100% !important;
+      border-radius: 50px !important;
+      margin: 10px 0 0 0 !important;
+      height: 45px !important;
+    }
+
+// Ajustes específicos para la tabla dentro del modal en móvil para mejorar la legibilidad y usabilidad
+    .table-responsive {
+      border: 1px solid #dee2e6 !important;
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .table-responsive table {
+      min-width: 450px !important;
+    }
+
+    .table td,
+    .table th {
+      font-size: 0.8rem !important;
+      padding: 8px 4px !important;
+    }
+  }
+  // Ajustes adicionales para pantallas muy pequeñas (móviles pequeños)
+  .table td,
+  .table th {
+    padding: 12px 8px !important;
+    font-size: 0.85rem;
+  }
+
+  // Ajuste de padding para el cuerpo del modal en móvil para evitar que el contenido toque los bordes
+  .modal-body {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}

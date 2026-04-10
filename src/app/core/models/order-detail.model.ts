@@ -6,7 +6,7 @@ export interface ProductItemRs {
   productName: string;
   quantity: number;
   unitPrice: number;
-  subtotal: number;
+  subTotal: number;
 }
 
 /**
@@ -14,6 +14,6 @@ export interface ProductItemRs {
  * Se utiliza al enviar datos desde el formulario de creación de pedidos hacia el backend
  */
 export interface OrderDetailRq {
-  productId: string;
+  productName: string;
   quantity: number;
 }

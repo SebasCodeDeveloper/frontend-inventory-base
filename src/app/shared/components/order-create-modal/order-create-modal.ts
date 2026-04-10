@@ -1,0 +1,204 @@
+import { Component, EventEmitter, Output, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, NgForm, NgModel } from '@angular/forms'; 
+import { OrderService } from '../../../core/services/order';
+import { NotificationService } from '../../../core/services/notification';
+import { ProductService } from '../../../core/services/product';
+import { OrderRq } from '../../../core/models/order.model';
+import { UserService } from '../../../core/services/user';
+
+declare var bootstrap: any;
+
+@Component({
+  selector: 'app-order-create-modal',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './order-create-modal.html',
+  styleUrl: './order-create-modal.scss',
+})
+export class OrderCreateModalComponent implements OnInit {
+  
+  // Notifica al componente padre para refrescar la tabla principal tras una venta exitosa
+  @Output() orderCreated = new EventEmitter<void>();
+
+  // Referencias al DOM para manipular el Modal de Bootstrap y el estado del formulario
+  @ViewChild('orderCreateModal') modalElement!: ElementRef;
+  @ViewChild('orderForm') orderForm!: NgForm;
+
+  // Estados de la interfaz
+  isLoading: boolean = false;
+  email: string | null = null;
+  errorMessage: string | null = null;
+
+  // Datos operativos: Carrito temporal, catálogo de productos y base de datos de correos
+  carrito: any[] = [];
+  productosCatalogo: any[] = [];
+  listaCorreos: string[] = []; 
+
+  // Modelo para la entrada de nuevos productos al carrito
+  nuevoItem = {
+    productName: '',
+    quantity: 1,
+    unitPrice: 0 
+  };
+
+  constructor(
+    private orderService: OrderService,
+    private productService: ProductService,
+    private userService: UserService, 
+    public notify: NotificationService,
+  ) {}
+
+  ngOnInit(): void {
+    this.cargarCatalogo();
+    this.cargarUsuariosRegistrados(); 
+  }
+
+  /**
+   * Calcula el total acumulado de la venta actual
+   */
+  get totalVenta(): number {
+    return this.carrito.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0);
+  }
+
+  /**
+   * Obtiene los productos disponibles desde el backend
+   */
+  cargarCatalogo(): void {
+    this.isLoading = true;
+    this.productService.getProducts().subscribe({
+      next: (data) => {
+        this.productosCatalogo = data;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.errorMessage = 'No se pudo conectar con el servidor por favor intente más tarde.';
+        this.isLoading = false;
+      },
+    });
+  }
+
+  /**
+   * Carga la lista de correos electrónicos de usuarios registrados para el autocompletado/validación
+   */
+  cargarUsuariosRegistrados(): void {
+    this.userService.getUsers().subscribe({
+      next: (usuarios) => {
+        this.listaCorreos = usuarios.map(u => u.email);
+      },
+      error: () => console.error('Error al cargar correos de usuarios')
+    });
+  }
+
+  /**
+   * Busca automáticamente el precio de un producto mientras el usuario escribe o selecciona un nombre
+   */
+  buscarPrecio(): void {
+    if (!this.nuevoItem.productName) {
+      this.nuevoItem.unitPrice = 0;
+      return;
+    }
+    const nombreInput = this.nuevoItem.productName.trim();
+    const producto = this.productosCatalogo.find(
+      (p) => p.name.toLowerCase() === nombreInput.toLowerCase()
+    );
+    this.nuevoItem.unitPrice = producto ? producto.price : 0;
+  }
+
+  /**
+   * Agrega un item al carrito validando existencia y disponibilidad de stock
+   * @param prodControl Control del input para resetear validaciones visuales
+   */
+  agregarAlCarrito(prodControl: NgModel): void {
+    const nombreInput = this.nuevoItem.productName.trim();
+    const productoEncontrado = this.productosCatalogo.find(
+      (p) => p.name.toLowerCase() === nombreInput.toLowerCase(),
+    );
+
+    // Validación: Existencia en catálogo
+    if (!productoEncontrado) {
+      this.notify.show('error', 'Catálogo', 'No Encontrado', 'El producto ingresado no existe.');
+      return;
+    }
+
+    // Validación: Stock disponible
+    if (this.nuevoItem.quantity > productoEncontrado.stock) {
+      this.notify.show('error', 'Stock', 'Cantidad insuficiente', `Disponible: ${productoEncontrado.stock} unidades.`);
+      return;
+    }
+
+    // Lógica: Si el producto ya está en el carrito, se suma la cantidad; si no, se agrega nuevo
+    const index = this.carrito.findIndex(
+      (i) => i.productName.toLowerCase() === nombreInput.toLowerCase(),
+    );
+
+    if (index !== -1) {
+      this.carrito[index].quantity += this.nuevoItem.quantity;
+    } else {
+      this.carrito.push({
+        productName: productoEncontrado.name,
+        quantity: this.nuevoItem.quantity,
+        unitPrice: productoEncontrado.price
+      });
+    }
+
+    // Resetear modelo de entrada y limpiar estados de validación del input
+    this.nuevoItem = { productName: '', quantity: 1, unitPrice: 0 };
+    if (prodControl) {
+      prodControl.control.markAsPristine();
+      prodControl.control.markAsUntouched();
+    }
+  }
+
+  /**
+   * Envía la orden final al servidor
+   */
+  crearOrden(): void {
+    if (!this.email || this.carrito.length === 0) return;
+
+    this.isLoading = true;
+    const payload: OrderRq = {
+      email: this.email,
+      items: this.carrito.map((item) => ({
+        productName: item.productName,
+        quantity: item.quantity
+      })),
+    };
+
+    this.orderService.createOrder(payload).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.notify.show('create', 'Orden'); 
+        this.orderCreated.emit();            
+        this.limpiarYcerrar();               
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const backMsg = err.error?.message || 'Error al procesar la orden';
+        this.notify.show('error', 'Orden', backMsg, 'Verifique los datos.');
+      },
+    });
+  }
+
+  /**
+   * Limpia todos los campos del formulario y cierra el modal mediante la API de Bootstrap
+   */
+  public limpiarYcerrar(): void {
+    this.email = null;
+    this.carrito = [];
+    this.nuevoItem = { productName: '', quantity: 1, unitPrice: 0 };
+
+    if (this.orderForm) {
+      this.orderForm.resetForm({
+        quantity: 1 
+      });
+    }
+
+    // Manipulación manual del modal de Bootstrap
+    const modalNative = this.modalElement.nativeElement;
+    const modalInstance = bootstrap.Modal.getInstance(modalNative) || new bootstrap.Modal(modalNative);
+    if (modalInstance) {
+      modalInstance.hide();
+    }
+  }
+}

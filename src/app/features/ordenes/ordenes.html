@@ -9,8 +9,8 @@
     <div class="d-flex gap-2">
 
       <!-- Input de búsqueda por email -->
-        <div class="input-group input-group-sm shadow-sm" style="width: 250px;">
-        <input type="text" class="form-control border-32 rounded-pill px-3" placeholder="Buscar email..."
+      <div class="input-group input-group-sm shadow-sm" style="width: 250px;">
+        <input type="text" class="form-control  rounded-pill px-3" placeholder="Buscar email..."
           [(ngModel)]="emailBusqueda" (keyup.enter)="buscarPorEmail()">
       </div>
 
@@ -21,7 +21,8 @@
       </button>
 
       <!-- Botón para crear una nueva orden -->
-      <button class="btn btn-dark d-flex align-items-center shadow-sm rounded-pill px-3">
+      <button class="btn btn-dark d-flex align-items-center shadow-sm rounded-pill px-3" data-bs-toggle="modal"
+        data-bs-target="#orderCreateModal">
         <i class="bi bi-plus-lg me-1"></i> New Order
       </button>
     </div>
@@ -31,7 +32,6 @@
   <div *ngIf="errorMessage" class="alert border-0 shadow-sm mb-4" role="alert"
     style="background: rgba(255, 59, 48, 0.1); color: #ff3b30; border-radius: 12px;">
     <strong><i class="bi bi-exclamation-circle-fill"></i> Error:</strong> {{ errorMessage }}
-    <button type="button" class="btn-close" (click)="errorMessage = null"></button>
   </div>
 
   <!-- espera de recrga de la tabla  -->
@@ -74,8 +74,7 @@
             </td>
 
             <!-- Total formateado en moneda COP -->
-            <td class="fw-bold text-dark"> {{ order.total | currency: 'COP ': 'code'}}
-            </td>
+            <td class="fw-bold text-dark"> {{ order.total | currency: 'COP ': 'code'}}</td>
 
             <!-- Estado con estilos dinámicos -->
             <td>
@@ -105,6 +104,21 @@
               </div>
             </td>
           </tr>
+
+          <!-- Mensaje cuando no hay órdenes en la base de datos -->
+          <tr *ngIf="listaOrdenes.length === 0 && !errorMessage">
+            <td colspan="4" class="text-center py-5 animate__animated animate__fadeIn">
+              <div class="py-4">
+                <i class="bi bi-folder-x text-muted" style="font-size: 3rem; opacity: 0.4;"></i>
+                <h5 class="mt-3 fw-bold text-muted">No se encontraron registros</h5>
+                <p class="text-muted small">La base de datos de órdenes se encuentra vacía actualmente.</p>
+                <button class="btn btn-outline-dark btn-sm rounded-pill px-4 mt-2 shadow-sm" data-bs-toggle="modal"
+                  data-bs-target="#orderCreateModal">
+                  <i class="bi bi-plus-lg me-1"></i> Crear mi primera orden
+                </button>
+              </div>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -113,3 +127,6 @@
 
 <app-order-detail-modal [orden]="ordenSeleccionada" (actionCompleted)="cargarOrdenes()">
 </app-order-detail-modal>
+
+<app-order-create-modal (orderCreated)="cargarOrdenes()">
+</app-order-create-modal>

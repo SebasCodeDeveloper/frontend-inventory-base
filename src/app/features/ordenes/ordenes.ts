@@ -5,6 +5,7 @@ import { OrderReportRs, GetOrderByEmailRq } from '../../core/models/order.model'
 import { NotificationService } from '../../core/services/notification';
 import { OrderService } from '../../core/services/order';
 import { OrderDetailModalComponent } from '../../shared/components/order-detail-modal/order-detail-modal';
+import { OrderCreateModalComponent } from '../../shared/components/order-create-modal/order-create-modal';
 
 /**
  * Componente principal para la gestión y visualización de órdenes.
@@ -13,7 +14,7 @@ import { OrderDetailModalComponent } from '../../shared/components/order-detail-
 @Component({
   selector: 'app-ordenes',
   standalone: true,
-  imports: [CommonModule, FormsModule, OrderDetailModalComponent],
+  imports: [CommonModule, FormsModule, OrderDetailModalComponent, OrderCreateModalComponent],
   templateUrl: './ordenes.html',
   styleUrl: './ordenes.scss',
 })
@@ -44,16 +45,22 @@ export class Ordenes implements OnInit {
   /**
    * Recupera todas las órdenes (Reporte Global).
    */
-  cargarOrdenes(): void {
+cargarOrdenes(): void {
     this.isLoading = true;
+    this.errorMessage = null; 
     this.orderService.getOrdersReport().subscribe({
       next: (data) => {
-        this.listaOrdenes = data;
+        this.listaOrdenes = data || []; 
         this.isLoading = false;
       },
-      error: () => {
-        this.errorMessage = 'Error de comunicación con el servidor.';
+
+      error: (err) => {
         this.isLoading = false;
+        if (err.status !== 404) {
+          this.errorMessage = 'No se pudo conectar con el servidor por favor intente más tarde o revise su conexión.';
+        } else {
+          this.listaOrdenes = []; 
+        }
       },
     });
   }
