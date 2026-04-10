@@ -19,47 +19,48 @@ import { NotificationService } from '../../core/services/notification';
   styleUrl: './usuarios.scss',
 })
 export class Usuarios implements OnInit {
-//Colección de usuarios registrados en el sistema
+  //Colección de usuarios registrados en el sistema
   listaUsuarios: User[] = [];
-//Estado de carga para feedback visual en la UI 
+  //Estado de carga para feedback visual en la UI
   isLoading: boolean = false;
-//Mensaje para mostrar errores de conexión o servidor en el template
+  //Mensaje para mostrar errores de conexión o servidor en el template
   errorMessage: string | null = null;
-//Usuario seleccionado para edición; null indica creación de un nuevo registro
+  //Usuario seleccionado para edición; null indica creación de un nuevo registro
   usuarioSeleccionado: User | null = null;
-//Modelo vinculado al campo de búsqueda por correo
+  //Modelo vinculado al campo de búsqueda por correo
   emailBusqueda: string = '';
 
-/**
+
+  /**
    * Configuración de los campos del formulario dinámico.
    * Incluye validaciones de formato de email y rangos de edad.
    */
   userFields = [
-    { 
-      name: 'name', 
-      label: 'FULL NAME', 
-      type: 'text', 
+    {
+      name: 'name',
+      label: 'FULL NAME',
+      type: 'text',
       placeholder: 'Ej: Johan Peña',
-      validators: [Validators.required, Validators.minLength(3)] 
+      validators: [Validators.required, Validators.minLength(3)],
     },
-    { 
-      name: 'email', 
-      label: 'EMAIL ADDRESS', 
-      type: 'email', 
+    {
+      name: 'email',
+      label: 'EMAIL ADDRESS',
+      type: 'email',
       placeholder: 'usuario@dominio.com',
-      validators: [Validators.required, Validators.email] 
+      validators: [Validators.required, Validators.email],
     },
-    { 
-      name: 'age', 
-      label: 'ASSIGNED AGE', 
-      type: 'number', 
+    {
+      name: 'age',
+      label: 'ASSIGNED AGE',
+      type: 'number',
       placeholder: '00',
-      validators: [Validators.required, Validators.min(1), Validators.max(120)] 
-    }
+      validators: [Validators.required, Validators.min(1), Validators.max(120)],
+    },
   ];
   constructor(
     private userService: UserService,
-    public notify: NotificationService 
+    public notify: NotificationService,
   ) {}
 
   /**
@@ -97,33 +98,37 @@ export class Usuarios implements OnInit {
    */
   onUserOperationSuccess() {
     const action = this.usuarioSeleccionado ? 'update' : 'create';
-    this.cargarUsuarios(); 
+    this.cargarUsuarios();
     this.notify.show(action, 'User');
   }
 
-/**
+  /**
    * Consume el servicio para obtener todos los usuarios registrados.
    */
   cargarUsuarios(): void {
-    this.isLoading = true;
-    this.errorMessage = null;
-    this.userService.getUsers().subscribe({
-      next: (data) => {
-        this.listaUsuarios = data;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.errorMessage = 'No se pudo conectar con el servidor  .';
-        this.isLoading = false;
-      },
-    });
-  }
+  this.isLoading = true;
+  this.errorMessage = null;
+  this.userService.getUsers().subscribe({
+    next: (data) => {
+      this.listaUsuarios = data || [];
+      this.isLoading = false;
+    },
+    error: (err) => {
+      this.isLoading = false;
+      if (err.status !== 404) {
+        this.errorMessage = 'No se pudo conectar con el servidor por favor intente más tarde o revise su conexión.';
+      } else {
+        this.listaUsuarios = [];
+      }
+    },
+  });
+}
 
-/**
+  /**
    * Filtra la lista de usuarios por correo electrónico.
    * Si el campo está vacío, restaura el listado original.
    */
-    buscarPorEmail(): void {
+ buscarPorEmail(): void {
       if (!this.emailBusqueda.trim()) {
         this.cargarUsuarios();
         return;
@@ -143,7 +148,7 @@ export class Usuarios implements OnInit {
       });
     }
 
-/**
+  /**
    * Gestiona la eliminación de un usuario tras confirmación.
    * Maneja errores específicos de integridad (ej: usuario con órdenes asociadas).
    */
@@ -151,14 +156,19 @@ export class Usuarios implements OnInit {
     this.notify.askConfirmation(() => {
       this.userService.deleteUser(id).subscribe({
         next: () => {
-          this.notify.show('delete', 'User'); 
-          this.cargarUsuarios(); 
+          this.notify.show('delete', 'User');
+          this.cargarUsuarios();
         },
         error: (err) => {
           const backMsg = err.error?.message || 'No se pudo eliminar el registro.';
           this.notify.show('error', 'User', backMsg);
 
-              this.notify.show('error', 'Orden', backMsg, 'No se puede eliminar el usuario porque tiene órdenes asociadas');
+          this.notify.show(
+            'error',
+            'Orden',
+            backMsg,
+            'No se puede eliminar el usuario porque tiene órdenes asociadas',
+          );
         },
       });
     });

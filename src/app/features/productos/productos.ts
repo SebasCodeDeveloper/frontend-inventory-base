@@ -109,22 +109,27 @@ export class Productos implements OnInit {
    */
   cargarProductos(): void {
     this.isLoading = true;
+    this.errorMessage = null;
     this.productService.getProducts().subscribe({
       next: (data) => {
-        this.listaProductos = data;
+        this.listaProductos = data || [];
         this.isLoading = false;
       },
-      error: () => {
-        this.errorMessage = 'No se pudo conectar con el servidor.';
-        this.isLoading = false;
-      },
-    });
+     error: (err) => {
+      this.isLoading = false;
+      if (err.status !== 404) {
+        this.errorMessage = 'No se pudo conectar con el servidor por favor intente más tarde o revise su conexión.';
+      } else {
+        this.listaProductos = []; 
+      }
+    },
+  });
   }
 
 /**
    * Realiza una búsqueda por nombre. Si el input está vacío, recarga todo el catálogo.
    */
-   buscarPorEmail(): void {
+   buscarPorProducto(): void {
         if (!this.nameBusqueda.trim()) {
           this.cargarProductos();
           return;
