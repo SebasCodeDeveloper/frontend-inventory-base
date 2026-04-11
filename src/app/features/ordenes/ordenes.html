@@ -125,8 +125,11 @@
   </div>
 </div>
 
-<app-order-detail-modal [orden]="ordenSeleccionada" (actionCompleted)="cargarOrdenes()">
+<!-- Modal de detalle de orden -->
+<app-order-detail-modal [orden]="ordenSeleccionada" (editRequested)="abrirEdicion($event)"
+  (actionCompleted)="cargarOrdenes()">
 </app-order-detail-modal>
 
-<app-order-create-modal (orderCreated)="cargarOrdenes()">
-</app-order-create-modal>
+<!-- Modal de formulario para creación y edición de órdenes -->
+<app-order-form-modal #orderFormModal (orderCreated)="cargarOrdenes()">
+</app-order-form-modal>
