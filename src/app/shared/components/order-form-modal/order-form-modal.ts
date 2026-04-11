@@ -4,36 +4,38 @@ import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { OrderService } from '../../../core/services/order';
 import { NotificationService } from '../../../core/services/notification';
 import { ProductService } from '../../../core/services/product';
-import { OrderRq } from '../../../core/models/order.model';
+import { OrderRq, OrderReportRs } from '../../../core/models/order.model';
 import { UserService } from '../../../core/services/user';
 
 declare var bootstrap: any;
 
 @Component({
-  selector: 'app-order-create-modal',
+  selector: 'app-order-form-modal',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './order-create-modal.html',
-  styleUrl: './order-create-modal.scss',
+  templateUrl: './order-form-modal.html',
+  styleUrl: './order-form-modal.scss',
 })
-export class OrderCreateModalComponent implements OnInit {
+export class OrderFormModalComponent implements OnInit {
   
-  // Notifica al componente padre para refrescar la tabla principal tras una venta exitosa
+  // Notifica al componente padre para refrescar la tabla principal tras una operación exitosa
   @Output() orderCreated = new EventEmitter<void>();
 
   // Referencias al DOM para manipular el Modal de Bootstrap y el estado del formulario
-  @ViewChild('orderCreateModal') modalElement!: ElementRef;
+  @ViewChild('orderFormModal') modalElement!: ElementRef;
   @ViewChild('orderForm') orderForm!: NgForm;
 
   // Estados de la interfaz
   isLoading: boolean = false;
-  email: string | null = null;
+  editMode: boolean = false;
+  orderId: string | null = null;
   errorMessage: string | null = null;
 
   // Datos operativos: Carrito temporal, catálogo de productos y base de datos de correos
+  email: string | null = null;
   carrito: any[] = [];
   productosCatalogo: any[] = [];
-  listaCorreos: string[] = []; 
+  listaCorreos: string[] = [];
 
   // Modelo para la entrada de nuevos productos al carrito
   nuevoItem = {
@@ -52,6 +54,21 @@ export class OrderCreateModalComponent implements OnInit {
   ngOnInit(): void {
     this.cargarCatalogo();
     this.cargarUsuariosRegistrados(); 
+  }
+
+  /**
+   * Carga los datos de una orden existente para su edición
+   * @param order Objeto con la información de la orden a editar
+   */
+  public patchData(order: OrderReportRs): void {
+    this.editMode = true;
+    this.orderId = order.orderId;
+    this.email = order.email;
+    this.carrito = order.items.map(item => ({
+      productName: item.productName,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice
+    }));
   }
 
   /**
@@ -151,13 +168,15 @@ export class OrderCreateModalComponent implements OnInit {
   }
 
   /**
-   * Envía la orden final al servidor
+   * Procesa el guardado de la orden (Creación o Actualización)
    */
-  crearOrden(): void {
+  guardarOrden(): void {
     if (!this.email || this.carrito.length === 0) return;
 
     this.isLoading = true;
-    const payload: OrderRq = {
+
+    // Estructura de datos común para ambos casos
+    const payload = {
       email: this.email,
       items: this.carrito.map((item) => ({
         productName: item.productName,
@@ -165,16 +184,21 @@ export class OrderCreateModalComponent implements OnInit {
       })),
     };
 
-    this.orderService.createOrder(payload).subscribe({
+    // Decisión de flujo basada en el modo de edición
+    const request = (this.editMode && this.orderId)
+      ? this.orderService.updateOrder(this.orderId, payload as any)
+      : this.orderService.createOrder(payload as OrderRq);
+
+    request.subscribe({
       next: () => {
         this.isLoading = false;
-        this.notify.show('create', 'Orden'); 
+        this.notify.show(this.editMode ? 'update' : 'create', 'Orden'); 
         this.orderCreated.emit();            
         this.limpiarYcerrar();               
       },
       error: (err) => {
         this.isLoading = false;
-        const backMsg = err.error?.message || 'Error al procesar la orden';
+        const backMsg = err.error?.message || 'Error al procesar la solicitud';
         this.notify.show('error', 'Orden', backMsg, 'Verifique los datos.');
       },
     });
@@ -184,21 +208,22 @@ export class OrderCreateModalComponent implements OnInit {
    * Limpia todos los campos del formulario y cierra el modal mediante la API de Bootstrap
    */
   public limpiarYcerrar(): void {
-    this.email = null;
-    this.carrito = [];
-    this.nuevoItem = { productName: '', quantity: 1, unitPrice: 0 };
+  this.email = null;
+  this.carrito = [];
+  this.editMode = false;
+  this.orderId = null;
+  this.nuevoItem = { productName: '', quantity: 1, unitPrice: 0 };
 
-    if (this.orderForm) {
-      this.orderForm.resetForm({
-        quantity: 1 
-      });
-    }
+  if (this.orderForm) {
+    this.orderForm.resetForm({ quantity: 1 });
+  }
 
-    // Manipulación manual del modal de Bootstrap
-    const modalNative = this.modalElement.nativeElement;
-    const modalInstance = bootstrap.Modal.getInstance(modalNative) || new bootstrap.Modal(modalNative);
+  const modalElement = document.getElementById('orderCreateModal');
+  if (modalElement) {
+    const modalInstance = bootstrap.Modal.getInstance(modalElement);
     if (modalInstance) {
       modalInstance.hide();
     }
   }
+}
 }

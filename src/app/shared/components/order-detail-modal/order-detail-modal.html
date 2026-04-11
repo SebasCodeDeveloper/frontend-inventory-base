@@ -1,5 +1,5 @@
 <!-- Modal para mostrar los detalles de una orden -->
-<div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="orderDetailModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered" style="max-width: 580px;">
     <div class="modal-content border-0 shadow-lg"
       style="border-radius: 28px; background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);">
@@ -80,8 +80,8 @@
           <!-- Acciones de edición -->
           <div class="d-flex gap-2 gap-md-3 justify-content-center flex-wrap flex-sm-nowrap">
             <button *ngIf="orden.status === 'CREATED'"
-              class="btn btn-light rounded-pill px-4 py-2 border shadow-sm fw-bold text-dark btn-hover-eff flex-grow-1 flex-sm-grow-0"
-              style="min-width: 140px; max-width: 225px;">
+              class="btn btn-light rounded-pill px-4 py-2 border shadow-sm fw-bold text-dark"
+              (click)="solicitarEdicion()" data-bs-dismiss="modal" style="min-width: 140px; max-width: 225px;">
               <i class="bi bi-pencil-square me-1"></i> Editar
             </button>
             <!-- Acciones de Cancelar -->
