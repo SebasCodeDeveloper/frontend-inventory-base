@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrderReportRs, GetOrderByEmailRq } from '../../core/models/order.model';
 import { NotificationService } from '../../core/services/notification';
 import { OrderService } from '../../core/services/order';
 import { OrderDetailModalComponent } from '../../shared/components/order-detail-modal/order-detail-modal';
-import { OrderCreateModalComponent } from '../../shared/components/order-create-modal/order-create-modal';
+import { OrderFormModalComponent } from '../../shared/components/order-form-modal/order-form-modal';
 
 /**
  * Componente principal para la gestión y visualización de órdenes.
@@ -14,12 +14,16 @@ import { OrderCreateModalComponent } from '../../shared/components/order-create-
 @Component({
   selector: 'app-ordenes',
   standalone: true,
-  imports: [CommonModule, FormsModule, OrderDetailModalComponent, OrderCreateModalComponent],
+  imports: [CommonModule, FormsModule, OrderDetailModalComponent, OrderFormModalComponent],
   templateUrl: './ordenes.html',
   styleUrl: './ordenes.scss',
 })
 export class Ordenes implements OnInit {
-//Listado de órdenes obtenidas desde el servidor
+
+// Referencia al componente del formulario para poder manipularlo desde aquí
+@ViewChild('orderFormModal') orderFormModal!: OrderFormModalComponent;
+
+  //Listado de órdenes obtenidas desde el servidor
   listaOrdenes: OrderReportRs[] = [];
 //Flag para mostrar el spinner de carga en la UI
   isLoading: boolean = false;
@@ -121,6 +125,20 @@ cargarOrdenes(): void {
    */
   verDetalle(orden: OrderReportRs): void {
     this.ordenSeleccionada = orden;
+  }
+
+  /**
+   * Abre el modal de edición con los datos de la orden seleccionada.
+   * El modal se encargará de diferenciar entre modo edición y creación.
+   * @param orden 
+   */
+  abrirEdicion(orden: OrderReportRs): void {
+    this.orderFormModal.patchData(orden);
+    const modalElement = document.getElementById('orderCreateModal');
+    if (modalElement) {
+      const modalInstance = (window as any).bootstrap.Modal.getOrCreateInstance(modalElement);
+      modalInstance.show();
+    }
   }
 
   /**

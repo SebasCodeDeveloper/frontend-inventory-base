@@ -68,6 +68,16 @@ getOrdersByEmail(body: GetOrderByEmailRq): Observable<OrderReportRs[]> {
     return this.http.post<OrderReportRs>(this.URL_ORDERS, body, this.httpOptions)
       .pipe(catchError(this.handleError));
   }
+
+    /**
+     * Actualiza los datos de una orden existente.
+     * @param id Identificador del orden a modificar.
+     * @param body Datos actualizados.
+     */
+    updateOrder(id: string, body: OrderRq): Observable<OrderReportRs> {
+      return this.http.put<OrderReportRs>(`${this.URL_ORDERS}/${id}`, body, this.httpOptions)
+        .pipe(catchError(this.handleError));
+    }
   
 /**
    * Cambia el estado de una orden a 'PAID'.

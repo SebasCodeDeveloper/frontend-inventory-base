@@ -4,10 +4,12 @@
   <div class="modal-dialog modal-lg modal-dialog-centered modal-custom-width">
     <div class="modal-content border-0 shadow-lg rounded-5">
 
-      <!-- Encabezado del modal con título y botón de cierre -->
+      <!-- Encabezado del modal con título dinámico según el modo (creación o edición) y botón de cierre -->
       <div class="modal-header border-0 px-4 pt-4">
-        <h5 class="fw-bold m-0" id="orderCreateModalLabel">
-          <i class="bi bi-plus-circle-fill me-2 text-primary"></i>Nueva Orden de Venta
+        <h5 class="fw-bold m-0">
+          <i
+            [class]="editMode ? 'bi bi-pencil-square me-2 text-warning' : 'bi bi-plus-circle-fill me-2 text-primary'"></i>
+          {{ editMode ? 'Editar Orden de Venta' : 'Nueva Orden de Venta' }}
         </h5>
         <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"
           (click)="limpiarYcerrar()"></button>
@@ -159,7 +161,7 @@
             class="btn btn-light rounded-pill text-decoration-none fw-bold me-auto btn-hover-eff shadow-sm btn-discard-custom"
             style="height: 48px; transition: all 0.2s ease-in-out; border: 2px solid #00000031; opacity: 0.8;"
             data-bs-dismiss="modal" (click)="limpiarYcerrar()">
-            Descartar
+            {{ editMode ? 'Cancelar' : 'Descartar' }}
           </button>
           <!-- Pie del modal  para la vista del total de la venata -->
           <div class="total-badge-custom">
@@ -173,12 +175,12 @@
             </div>
           </div>
           <!--Botón para confirmar la orden, deshabilitado si el formulario es inválido o si no hay productos en el carrito -->
-          <button type="button" (click)="crearOrden()"
-            class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm ms-3 btn-hover-effect btn-confirm-custom"
-            style="height: 48px; transition: all 0.2s ease-in-out;"
+          <button type="button" (click)="guardarOrden()"
+            class="btn rounded-pill px-5 py-2 fw-bold shadow-sm ms-3 btn-confirm-custom"
+            [ngClass]="editMode ? 'btn-warning' : 'btn-primary'"
             [disabled]="!email || userEmail.invalid || carrito.length === 0 || isLoading">
             <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
-            {{ isLoading ? 'Procesando...' : 'Confirmar Venta' }}
+            {{ isLoading ? 'Procesando...' : (editMode ? 'Actualizar Orden' : 'Confirmar Venta') }}
           </button>
         </div>
       </form>
