@@ -15,7 +15,7 @@
       </div>
 
       <!-- Botón para recargar todas las órdenes -->
-    <button class="btn btn-light d-flex align-items-center shadow-sm rounded-pill px-3" (click)="cargarProductos()"
+      <button class="btn btn-light d-flex align-items-center shadow-sm rounded-pill px-3" (click)="cargarProductos()"
         style="border: 1px solid #ddd;">
         <i class="bi bi-arrow-clockwise me-1"></i> Refrescar
       </button>
@@ -51,7 +51,7 @@
     <!-- Contenedor responsive para la tabla -->
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
-        
+
         <!-- Cabecera de la tabla -->
         <thead>
           <tr>
@@ -97,13 +97,12 @@
                 </button>
 
                 <!-- Botón para eliminar la producto -->
-                <button class="btn-cool delete" (click)="eliminarProducto(prod)">
+                <button class="btn-cool delete"
+                  [class.disabled-logic]="prod.orderDetails && prod.orderDetails.length > 0"
+                  (click)="eliminarProducto(prod)"
+                  [title]="(prod.orderDetails && prod.orderDetails.length > 0) ? 'No se puede eliminar: Producto con órdenes' : 'Eliminar producto'">
                   <div class="icon-blob">
                     <i class="bi bi-fire"></i>
-                    <!--ICONO DEBASURA 
-                         <div class="icon-blob">
-                        <i class="bi bi-fire"></i> -->
-
                   </div>
                 </button>
               </div>
