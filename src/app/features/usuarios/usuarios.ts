@@ -148,29 +148,40 @@ export class Usuarios implements OnInit {
       });
     }
 
-  /**
-   * Gestiona la eliminación de un usuario tras confirmación.
-   * Maneja errores específicos de integridad (ej: usuario con órdenes asociadas).
-   */
-  eliminarUsuario(id: any): void {
-    this.notify.askConfirmation(() => {
-      this.userService.deleteUser(id).subscribe({
-        next: () => {
-          this.notify.show('delete', 'User');
-          this.cargarUsuarios();
-        },
-        error: (err) => {
-          const backMsg = err.error?.message || 'No se pudo eliminar el registro.';
-          this.notify.show('error', 'User', backMsg);
+ /**
+ * Gestiona la eliminación de un usuario.
+ * Replica la lógica de productos: si tiene órdenes, intenta borrar para capturar el error del back.
+ * Si está limpio, pide confirmación.
+ */
+eliminarUsuario(usuario: User): void {
 
-          this.notify.show(
-            'error',
-            'Orden',
-            backMsg,
-            'No se puede eliminar el usuario porque tiene órdenes asociadas',
-          );
-        },
-      });
+  const tieneOrdenes = (usuario.orders && usuario.orders.length > 0);
+
+  if (tieneOrdenes) {
+    this.userService.deleteUser(usuario.id).subscribe({
+      error: (err) => {
+        const backMsg = err.error?.message;
+        this.notify.show('error', 'User', backMsg, 'No se pudo completar la acción');
+      }
     });
+    return;
   }
+
+  // Si no tiene órdenes, procedemos con la confirmación visual
+  this.notify.askConfirmation(() => {
+    this.isLoading = true;
+    this.userService.deleteUser(usuario.id).subscribe({
+      next: () => {
+        this.cargarUsuarios();
+        this.notify.show('delete', 'User');
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.isLoading = false;
+        const backMsg = err.error?.message || 'Error al eliminar usuario.';
+        this.notify.show('error', 'User', backMsg, 'No se pudo completar la acción');
+      }
+    });
+  });
+}
 }

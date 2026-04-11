@@ -200,3 +200,22 @@
     transform: scale(0.95);
   }
 }
+
+// Nueva clase para bloquear la acción sin dañar el estilo
+.btn-cool.delete.disabled-logic {
+  pointer-events: none; 
+  
+  .icon-blob {
+    opacity: 0.4 !important; 
+    cursor: not-allowed !important;
+  }
+}
+
+// Aseguramos que el botón padre capture el cursor de no-permitido
+button.disabled-logic {
+  pointer-events: auto !important;
+
+  &:active {
+    pointer-events: none !important; 
+  }
+}
