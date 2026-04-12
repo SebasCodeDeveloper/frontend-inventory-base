@@ -19,6 +19,7 @@ export interface OrderDetails {
   quantity: number;
   subtotal: number;
   unitPrice: number;
+  orderStatus: string;
 }
 
 /**
