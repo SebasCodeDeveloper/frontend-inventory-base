@@ -97,10 +97,9 @@
                 </button>
 
                 <!-- Botón para eliminar la producto -->
-                <button class="btn-cool delete"
-                  [class.disabled-logic]="prod.orderDetails && prod.orderDetails.length > 0"
-                  (click)="eliminarProducto(prod)"
-                  [title]="(prod.orderDetails && prod.orderDetails.length > 0) ? 'No se puede eliminar: Producto con órdenes' : 'Eliminar producto'">
+                <button class="btn-cool delete" [class.disabled-logic]="isProductBlocked(prod)"
+                  [disabled]="isProductBlocked(prod)" (click)="eliminarProducto(prod)"
+                  [title]="isProductBlocked(prod) ? 'No se puede eliminar: Producto con órdenes activas' : 'Eliminar producto'">
                   <div class="icon-blob">
                     <i class="bi bi-fire"></i>
                   </div>
