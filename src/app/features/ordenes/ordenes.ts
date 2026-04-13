@@ -6,6 +6,7 @@ import { NotificationService } from '../../core/services/notification';
 import { OrderService } from '../../core/services/order';
 import { OrderDetailModalComponent } from '../../shared/components/order-detail-modal/order-detail-modal';
 import { OrderFormModalComponent } from '../../shared/components/order-form-modal/order-form-modal';
+import { PaginationComponent } from '../../shared/components/pagination/pagination';
 
 /**
  * Componente principal para la gestión y visualización de órdenes.
@@ -14,30 +15,46 @@ import { OrderFormModalComponent } from '../../shared/components/order-form-moda
 @Component({
   selector: 'app-ordenes',
   standalone: true,
-  imports: [CommonModule, FormsModule, OrderDetailModalComponent, OrderFormModalComponent],
+  imports: [CommonModule,FormsModule,OrderDetailModalComponent,OrderFormModalComponent,PaginationComponent,],
   templateUrl: './ordenes.html',
   styleUrl: './ordenes.scss',
 })
 export class Ordenes implements OnInit {
-
-// Referencia al componente del formulario para poder manipularlo desde aquí
-@ViewChild('orderFormModal') orderFormModal!: OrderFormModalComponent;
+  // Referencia al componente del formulario para poder manipularlo desde aquí
+  @ViewChild('orderFormModal') orderFormModal!: OrderFormModalComponent;
 
   //Listado de órdenes obtenidas desde el servidor
   listaOrdenes: OrderReportRs[] = [];
-//Flag para mostrar el spinner de carga en la UI
+  //Flag para mostrar el spinner de carga en la UI
   isLoading: boolean = false;
-//Almacena mensajes de error para alertas rápidas en el template
+  //Almacena mensajes de error para alertas rápidas en el template
   errorMessage: string | null = null;
-//Orden seleccionada para ser enviada al modal de detalle
+  //Orden seleccionada para ser enviada al modal de detalle
   ordenSeleccionada: OrderReportRs | null = null;
-//Variable vinculada al input de búsqueda (Two-way binding)
+  //Variable vinculada al input de búsqueda (Two-way binding)
   emailBusqueda: string = '';
+
+  //Configuración de campos para el formulario dinámico de usuarios
+  paginaActual: number = 1;
+  itemsPorPagina: number = 5;
 
   constructor(
     private orderService: OrderService,
     public notify: NotificationService,
   ) {}
+
+  /**
+   * Este Getter es la clave: el HTML usará esto en el *ngFor
+   */
+  get ordenesPaginadas() {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const fin = inicio + this.itemsPorPagina;
+    return this.listaOrdenes.slice(inicio, fin);
+  }
+
+  onPageChange(nuevaPagina: number) {
+    this.paginaActual = nuevaPagina;
+  }
 
   /**
    * Ciclo de vida: Carga inicial de datos al montar el componente.
@@ -49,21 +66,22 @@ export class Ordenes implements OnInit {
   /**
    * Recupera todas las órdenes (Reporte Global).
    */
-cargarOrdenes(): void {
+  cargarOrdenes(): void {
     this.isLoading = true;
-    this.errorMessage = null; 
+    this.errorMessage = null;
     this.orderService.getOrdersReport().subscribe({
       next: (data) => {
-        this.listaOrdenes = data || []; 
+        this.listaOrdenes = data || [];
         this.isLoading = false;
       },
 
       error: (err) => {
         this.isLoading = false;
         if (err.status !== 404) {
-          this.errorMessage = 'No se pudo conectar con el servidor por favor intente más tarde o revise su conexión.';
+          this.errorMessage =
+            'No se pudo conectar con el servidor por favor intente más tarde o revise su conexión.';
         } else {
-          this.listaOrdenes = []; 
+          this.listaOrdenes = [];
         }
       },
     });
@@ -73,6 +91,7 @@ cargarOrdenes(): void {
    * Realiza una búsqueda filtrada. Si el campo está vacío, restaura la lista completa.
    */
   buscarPorEmail(): void {
+    this.paginaActual = 1;
     if (!this.emailBusqueda.trim()) {
       this.cargarOrdenes();
       return;
@@ -130,7 +149,7 @@ cargarOrdenes(): void {
   /**
    * Abre el modal de edición con los datos de la orden seleccionada.
    * El modal se encargará de diferenciar entre modo edición y creación.
-   * @param orden 
+   * @param orden
    */
   abrirEdicion(orden: OrderReportRs): void {
     this.orderFormModal.patchData(orden);

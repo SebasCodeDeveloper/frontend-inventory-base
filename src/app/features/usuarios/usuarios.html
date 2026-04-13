@@ -64,7 +64,7 @@
         <!-- Cuerpo de la tabla -->
         <tbody>
           <!-- Iteración de la lista de usuarios -->
-          <tr *ngFor="let user of listaUsuarios">
+          <tr *ngFor="let user of usuariosPaginados">
             <!-- Información del propietario (email) -->
             <td class="ps-4">
               <div class="fw-semibold text-dark">{{ user.name }}</div>
@@ -96,7 +96,7 @@
                   [title]="(user.orders && user.orders.length > 0) ? 'No se puede eliminar: Usuario con órdenes' : 'Eliminar usuario'">
                   <div class="icon-blob">
                     <i class="bi bi-fire"></i>
-                  </div>  
+                  </div>
                 </button>
               </div>
             </td>
@@ -121,6 +121,10 @@
         </tbody>
       </table>
     </div>
+    <!-- Componente de paginación -->
+    <app-pagination [paginaActual]="paginaActual" [totalItems]="listaUsuarios.length" [itemsPorPagina]="itemsPorPagina"
+      (pageChanged)="onPageChange($event)">
+    </app-pagination>
   </div>
 </div>
 

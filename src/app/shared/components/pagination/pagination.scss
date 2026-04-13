@@ -1,0 +1,19 @@
+.pagination-controls {
+  .btn-light {
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+//    
+    &:hover:not(:disabled) {
+      background-color: #f0f0f0;
+      transform: translateY(-1px);
+    }
+// Agregado para mejorar la apariencia de los botones deshabilitados
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: #f9f9f9 !important;
+      border-color: #eee !important;
+    }
+  }
+}

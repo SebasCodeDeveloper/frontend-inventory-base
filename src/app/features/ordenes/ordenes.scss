@@ -17,6 +17,9 @@
 
 //estilo de tabla  mantiene los estilos redondos
 .mac-table-container {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 465px;
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   border-radius: 18px !important;
   background: rgba(255, 255, 255, 0.8) !important;
@@ -25,6 +28,17 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
   overflow: hidden;
   margin-bottom: 2rem;
+}
+
+//Asegurar que la tabla se expanda correctamente dentro del contenedor
+.table-responsive {
+  flex-grow: 1; 
+  display: flex;
+  flex-direction: column;
+
+  .table {
+    margin-bottom: 0;
+  }
 }
 
 //estilo para el encabezado de la tabla tipo MacOS moderno y elegante
@@ -198,5 +212,19 @@
 
   &:active {
     transform: scale(0.95);
+  }
+}
+
+// Estilos específicos para la tabla de órdenes, manteniendo la coherencia con el diseño general
+.table {
+  margin-bottom: 0;
+  thead th {
+    // ... otros estilos ...
+    padding: 0.8rem 1.2rem !important; 
+    font-size: 0.75rem; 
+  }
+  td {
+    padding: 0.6rem 1.2rem !important; 
+    vertical-align: middle;
   }
 }

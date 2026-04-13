@@ -66,7 +66,7 @@
         <tbody>
 
           <!-- Iteración de la lista de órdenes -->
-          <tr *ngFor="let order of listaOrdenes">
+          <tr *ngFor="let order of ordenesPaginadas">
             <!-- Información del propietario (email + ID corto) -->
             <td class="ps-4">
               <div class="fw-semibold text-dark">{{ order.email }}</div>
@@ -108,7 +108,7 @@
           <!-- Mensaje cuando no hay órdenes en la base de datos -->
           <tr *ngIf="listaOrdenes.length === 0 && !errorMessage">
             <td colspan="4" class="text-center py-5 animate__animated animate__fadeIn">
-              <div class="py-4">
+              <div class="py-5">
                 <i class="bi bi-folder-x text-muted" style="font-size: 3rem; opacity: 0.4;"></i>
                 <h5 class="mt-3 fw-bold text-muted">No se encontraron registros</h5>
                 <p class="text-muted small">La base de datos de órdenes se encuentra vacía actualmente.</p>
@@ -122,6 +122,10 @@
         </tbody>
       </table>
     </div>
+    <!-- Componente de paginación -->
+    <app-pagination [paginaActual]="paginaActual" [totalItems]="listaOrdenes.length" [itemsPorPagina]="itemsPorPagina"
+      (pageChanged)="onPageChange($event)">
+    </app-pagination>
   </div>
 </div>
 

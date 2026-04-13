@@ -5,6 +5,7 @@ import { ProductService } from '../../core/services/product';
 import { NotificationService } from '../../core/services/notification';
 import { DynamicFormComponent } from '../../shared/components/dynamic-form/dynamic-form';
 import { FormsModule, Validators } from '@angular/forms';
+import { PaginationComponent } from '../../shared/components/pagination/pagination';
 
 /**
  * Componente para la gestión del catálogo de productos.
@@ -13,7 +14,7 @@ import { FormsModule, Validators } from '@angular/forms';
 @Component({
   selector: 'app-productos',
   standalone: true,
-  imports: [CommonModule, DynamicFormComponent, FormsModule],
+  imports: [CommonModule, DynamicFormComponent, FormsModule, PaginationComponent],
   templateUrl: './productos.html',
   styleUrl: './productos.scss',
 })
@@ -28,6 +29,10 @@ export class Productos implements OnInit {
   productoSeleccionado: ProductRs | null = null;
   //Término de búsqueda para filtrar por nombre
   nameBusqueda: string = '';
+
+  //Configuración de campos para el formulario dinámico de usuarios
+  paginaActual: number = 1;
+  itemsPorPagina: number = 5;
 
   /**
    * Configuración de campos para el componente 'app-dynamic-form'.
@@ -64,6 +69,19 @@ export class Productos implements OnInit {
     private productService: ProductService,
     public notify: NotificationService,
   ) {}
+
+  /**
+   * Este Getter es la clave: el HTML usará esto en el *ngFor
+   */
+  get productosPaginados() {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const fin = inicio + this.itemsPorPagina;
+    return this.listaProductos.slice(inicio, fin);
+  }
+
+  onPageChange(nuevaPagina: number) {
+    this.paginaActual = nuevaPagina;
+  }
 
   ngOnInit(): void {
     this.cargarProductos();
@@ -118,7 +136,8 @@ export class Productos implements OnInit {
       error: (err) => {
         this.isLoading = false;
         if (err.status !== 404) {
-          this.errorMessage = 'No se pudo conectar con el servidor por favor intente más tarde o revise su conexión.';
+          this.errorMessage =
+            'No se pudo conectar con el servidor por favor intente más tarde o revise su conexión.';
         } else {
           this.listaProductos = [];
         }
@@ -130,6 +149,7 @@ export class Productos implements OnInit {
    * Realiza una búsqueda por nombre. Si el input está vacío, recarga todo el catálogo.
    */
   buscarPorProducto(): void {
+    this.paginaActual = 1;
     if (!this.nameBusqueda.trim()) {
       this.cargarProductos();
       return;
