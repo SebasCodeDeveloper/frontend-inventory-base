@@ -6,6 +6,7 @@ import { UserService } from '../../core/services/user';
 import { FormsModule } from '@angular/forms';
 import { DynamicFormComponent } from '../../shared/components/dynamic-form/dynamic-form';
 import { NotificationService } from '../../core/services/notification';
+import { PaginationComponent } from '../../shared/components/pagination/pagination';
 
 /**
  * Componente para la administración de usuarios.
@@ -14,7 +15,7 @@ import { NotificationService } from '../../core/services/notification';
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [CommonModule, DynamicFormComponent, FormsModule],
+  imports: [CommonModule, DynamicFormComponent, FormsModule, PaginationComponent],
   templateUrl: './usuarios.html',
   styleUrl: './usuarios.scss',
 })
@@ -30,6 +31,9 @@ export class Usuarios implements OnInit {
   //Modelo vinculado al campo de búsqueda por correo
   emailBusqueda: string = '';
 
+  //Configuración de campos para el formulario dinámico de usuarios
+  paginaActual: number = 1;
+  itemsPorPagina: number = 6;
 
   /**
    * Configuración de los campos del formulario dinámico.
@@ -63,6 +67,19 @@ export class Usuarios implements OnInit {
     public notify: NotificationService,
   ) {}
 
+  /**
+   * Este Getter es la clave: el HTML usará esto en el *ngFor
+   */
+  get usuariosPaginados() {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const fin = inicio + this.itemsPorPagina;
+    return this.listaUsuarios.slice(inicio, fin);
+  }
+
+  onPageChange(nuevaPagina: number) {
+    this.paginaActual = nuevaPagina;
+  }
+  
   /**
    * Inicialización del componente: Solicita la lista inicial de usuarios.
    */
@@ -129,6 +146,7 @@ export class Usuarios implements OnInit {
    * Si el campo está vacío, restaura el listado original.
    */
  buscarPorEmail(): void {
+        this.paginaActual = 1;
       if (!this.emailBusqueda.trim()) {
         this.cargarUsuarios();
         return;

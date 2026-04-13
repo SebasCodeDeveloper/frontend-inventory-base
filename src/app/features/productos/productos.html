@@ -65,7 +65,7 @@
         <!-- Cuerpo de la tabla -->
         <tbody>
           <!-- Iteración de la lista de productos -->
-          <tr *ngFor="let prod of listaProductos">
+          <tr *ngFor="let prod of productosPaginados">
 
             <!-- Información del propietario (email + ID corto) -->
             <td class="ps-4">
@@ -124,10 +124,13 @@
               </div>
             </td>
           </tr>
-
         </tbody>
       </table>
     </div>
+    <!-- Componente de paginación -->
+    <app-pagination [paginaActual]="paginaActual" [totalItems]="listaProductos.length" [itemsPorPagina]="itemsPorPagina"
+      (pageChanged)="onPageChange($event)">
+    </app-pagination>
   </div>
 </div>
 
