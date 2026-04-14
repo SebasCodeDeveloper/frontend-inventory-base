@@ -202,7 +202,7 @@ export class Productos implements OnInit {
     }
 
     // Si el array de detalles está vacío, procedemos con la confirmación visual normal
-    this.notify.askConfirmation(() => {
+    this.notify.askConfirmation('delete', () => {
       this.isLoading = true;
       this.productService.deleteProduct(producto.id).subscribe({
         next: () => {

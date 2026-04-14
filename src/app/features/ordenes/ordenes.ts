@@ -115,7 +115,7 @@ export class Ordenes implements OnInit {
    * Contiene lógica de validación para estados restringidos (PAGADO/CANCELADO).
    */
   eliminarOrden(id: string): void {
-    this.notify.askConfirmation(() => {
+    this.notify.askConfirmation('delete', () => {
       this.orderService.eliminarOrden(id).subscribe({
         next: () => {
           this.notify.show('delete', 'Orden');
