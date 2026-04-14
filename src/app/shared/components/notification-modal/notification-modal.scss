@@ -35,3 +35,42 @@
   opacity: 0.2; 
 }
 }
+
+// Botón Eliminar (Rojo)
+.btn-mac-danger {
+  background-color: rgba(245, 52, 52, 0.288) !important; // Rojo translúcido
+  color: #c91e1e !important;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: rgba(201, 30, 30, 0.9) !important; // Rojo intenso
+    color: white !important;
+    transform: translateY(-1px);
+  }
+}
+
+// Botón Confirmar (Morado)
+.btn-mac-purple {
+  background-color: rgba(90, 30, 201, 0.3) !important; 
+  color: #7239db !important;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: rgba(90, 30, 201, 0.9) !important; 
+    color: white !important;
+    transform: translateY(-1px);
+  }
+}
+
+// Botón Pagar (Verde Bosque Exacto de image_5.png)
+.btn-mac-success {
+  background-color: rgba(34, 128, 59, 0.397) !important;
+  color: #1b632e !important; 
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: rgb(34, 128, 59) !important; 
+    color: white !important; 
+    transform: translateY(-1px);
+  }
+}

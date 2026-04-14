@@ -4,6 +4,7 @@ import { OrderReportRs } from '../../../core/models/order.model';
 import { OrderService } from '../../../core/services/order';
 import { NotificationService } from '../../../core/services/notification';
 
+declare var bootstrap: any;
 /**
  * Componente encargado de visualizar el desglose detallado de una orden.
  * Permite realizar acciones de gestión como cancelación, pago y solicitud de edición.
@@ -13,10 +14,10 @@ import { NotificationService } from '../../../core/services/notification';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './order-detail-modal.html',
-  styleUrl: './order-detail-modal.scss'
+  styleUrl: './order-detail-modal.scss',
 })
 export class OrderDetailModalComponent {
-  
+
   // Recibe la orden seleccionada desde el componente padre
   @Input() orden: OrderReportRs | null = null;
 
@@ -25,10 +26,10 @@ export class OrderDetailModalComponent {
 
   // Emite la orden actual al padre para que este abra el modal de edición
   @Output() editRequested = new EventEmitter<OrderReportRs>();
-  
+
   constructor(
-    private orderService: OrderService, 
-    public notify: NotificationService
+    private orderService: OrderService,
+    public notify: NotificationService,
   ) {}
 
   /**
@@ -38,17 +39,17 @@ export class OrderDetailModalComponent {
   cancelar(): void {
     if (!this.orden) return;
 
-    // Solicita confirmación visual mediante el servicio de notificaciones
-    this.notify.askConfirmation(() => {
+    this.notify.askConfirmation('cancel', () => {
       this.orderService.cancelarOrden(this.orden!.orderId).subscribe({
         next: () => {
-          this.notify.show('update', 'Orden'); 
-          this.actionCompleted.emit();        
+          this.cerrarModalDetalle();
+          this.notify.show('update', 'Orden');
+          this.actionCompleted.emit();
         },
         error: (err) => {
           const backErrorMsg = err.error?.message;
           this.notify.show('error', 'Orden', backErrorMsg, 'No se pudo completar la acción');
-        }
+        },
       });
     });
   }
@@ -70,15 +71,33 @@ export class OrderDetailModalComponent {
   pagar(): void {
     if (!this.orden) return;
 
-    this.orderService.pagarOrden(this.orden.orderId).subscribe({
-      next: () => {
-        this.notify.show('success', 'Orden'); 
-        this.actionCompleted.emit();     
-      },
-      error: (err) => {
-        const msg = err.error?.message || 'Transaction failed.';
-        this.notify.show('error', 'Orden', undefined, msg);
-      }
+    this.notify.askConfirmation('pay', () => {
+      this.orderService.pagarOrden(this.orden!.orderId).subscribe({
+        next: () => {
+          this.cerrarModalDetalle();
+          this.notify.show('success', 'Orden');
+          this.actionCompleted.emit();
+        },
+        error: (err) => {
+          const backErrorMsg = err.error?.message;
+          this.notify.show('error', 'Orden', backErrorMsg, 'No se pudo completar la acción');
+        },
+      });
     });
+  }
+
+  /**
+   * Cierra manualmente el modal de detalles de la orden
+   */
+  private cerrarModalDetalle(): void {
+    const modalElement = document.getElementById('orderDetailModal');
+
+    if (modalElement) {
+      const modalInstance = bootstrap.Modal.getInstance(modalElement);
+
+      if (modalInstance) {
+        modalInstance.hide();
+      }
+    }
   }
 }
