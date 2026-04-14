@@ -14,6 +14,7 @@ export class  NotificationService {
   public modalMessage = ''; 
   public modalIcon = '';
   
+  public confirmType: 'delete' | 'cancel' | 'pay' | null = null;
   private pendingAction: (() => void) | null = null;
 
   /**
@@ -63,13 +64,14 @@ export class  NotificationService {
    * Abre un diálogo de confirmación antes de realizar una acción destructiva.
    * @param callback Función que se ejecutará si el usuario confirma.
    */
-  public askConfirmation(callback: () => void) {
+  askConfirmation(type: 'delete' | 'cancel' | 'pay', callback: () => void) {
+    this.confirmType = type;
     this.pendingAction = callback;
-    const modalElement = document.getElementById('deleteConfirmModal');
     
+    const modalElement = document.getElementById('deleteConfirmModal');
     if (modalElement) { 
       this.prepareModalDepth(modalElement);
-      const modalInstance = new bootstrap.Modal(modalElement, { backdrop: true });
+     const modalInstance = new bootstrap.Modal(modalElement, { backdrop: 'static' });
       modalInstance.show(); 
     }
   }

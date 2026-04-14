@@ -186,7 +186,7 @@ eliminarUsuario(usuario: User): void {
   }
 
   // Si no tiene órdenes, procedemos con la confirmación visual
-  this.notify.askConfirmation(() => {
+  this.notify.askConfirmation('delete', () => {
     this.isLoading = true;
     this.userService.deleteUser(usuario.id).subscribe({
       next: () => {
