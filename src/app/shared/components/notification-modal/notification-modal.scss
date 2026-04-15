@@ -38,14 +38,14 @@
 
 // Botón Eliminar (Rojo)
 .btn-mac-danger {
-  background-color: rgba(245, 52, 52, 0.288) !important; // Rojo translúcido
+  background-color: rgba(245, 52, 52, 0.288) !important;
   color: #c91e1e !important;
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: rgba(201, 30, 30, 0.9) !important; // Rojo intenso
+    transform: translateY(-2px) scale(1.02);
+    background-color: rgba(201, 30, 30, 0.9) !important; 
     color: white !important;
-    transform: translateY(-1px);
   }
 }
 
@@ -56,9 +56,10 @@
   transition: all 0.3s ease;
 
   &:hover {
+    transform: translateY(-2px) scale(1.02);
     background-color: rgba(90, 30, 201, 0.9) !important; 
     color: white !important;
-    transform: translateY(-1px);
+    
   }
 }
 
@@ -69,8 +70,15 @@
   transition: all 0.3s ease;
 
   &:hover {
+    transform: translateY(-2px) scale(1.02);
     background-color: rgb(34, 128, 59) !important; 
     color: white !important; 
-    transform: translateY(-1px);
+  }
+}
+
+// Hover para el btn cancelar y voler
+.btn-mac-Hover {
+  &:hover {
+     transform: translateY(-2px) scale(1.02);
   }
 }
