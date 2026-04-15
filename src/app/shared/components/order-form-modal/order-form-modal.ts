@@ -226,4 +226,26 @@ export class OrderFormModalComponent implements OnInit {
     }
   }
 }
+
+/**
+ * Cambia la cantidad de un ítem en el carrito.
+ * Si la cantidad llega a 0, se elimina automáticamente.
+ * @param index Posición en el array
+ * @param valor 1 para sumar, -1 para restar
+ */
+cambiarCantidad(index: number, valor: number): void {
+  const item = this.carrito[index];
+  item.quantity += valor;
+
+  if (item.quantity <= 0) {
+    this.eliminarDelCarrito(index);
+  }
+}
+
+/**
+ * Elimina un producto del carrito por su índice.
+ */
+eliminarDelCarrito(index: number): void {
+  this.carrito.splice(index, 1);
+}
 }
