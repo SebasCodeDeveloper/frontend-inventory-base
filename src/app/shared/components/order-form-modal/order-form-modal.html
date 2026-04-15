@@ -80,11 +80,11 @@
             <!|-- Sección para mostrar el precio unitario del producto seleccionado -->
               <div class="col-7 col-md-3">
                 <label class="form-label small fw-bold text-muted mb-1 px-2">PRECIO UNITARIO</label>
-                <div class="input-group border border-light-subtle rounded-pill bg-body-tertiary px-3 shadow-none"
+                <div class="input-group border border-light-subtle rounded-pill bg-body-tertiary px-3 shadow-none input-blocked"
                   style="height: 35px;">
                   <span class="input-group-text bg-transparent border-0 text-primary fw-bold pe-1">$</span>
                   <input type="text" [value]="nuevoItem.unitPrice | number:'1.2-2'" readonly
-                    class="form-control border-0 shadow-none bg-transparent fw-bold text-primary ps-1">
+                    class="form-control border-0 shadow-none bg-transparent fw-bold text-primary ps-1 input-blocked">
                 </div>
                 <div style="height: 15px;"></div>
               </div>
@@ -181,7 +181,7 @@
             {{ editMode ? 'Cancelar' : 'Descartar' }}
           </button>
           <!-- Pie del modal  para la vista del total de la venata -->
-          <div class="total-badge-custom">
+          <div class="total-badge-custom input-blocked ">
             <div class="bg-light rounded-4 px-4 py-3 border shadow-sm text-center" style="min-width: 220px;">
               <p class="text-muted small fw-bold text-uppercase mb-0" style="letter-spacing: 1px; font-size: 0.65rem;">
                 Total de la Venta
@@ -193,7 +193,7 @@
           </div>
           <!--Botón para confirmar la orden, deshabilitado si el formulario es inválido o si no hay productos en el carrito -->
           <button type="button" (click)="guardarOrden()"
-            class="btn rounded-pill px-5 py-2 fw-bold shadow-sm ms-3 btn-confirm-custom"
+            class="btn rounded-pill px-5 py-2 fw-bold shadow-sm ms-3 btn-confirm-custom btn-hover-eff"
             [ngClass]="editMode ? 'btn-warning' : 'btn-primary'"
             [disabled]="!email || userEmail.invalid || carrito.length === 0 || isLoading">
             <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>

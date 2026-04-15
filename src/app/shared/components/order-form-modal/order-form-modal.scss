@@ -40,6 +40,11 @@
   &:active:not(:disabled) {
     transform: scale(0.98);
   }
+  
+  &:disabled {
+    cursor: not-allowed !important;
+    pointer-events: all; 
+ }
 }
 
 // Variante sin sombra para botones secundarios
@@ -54,6 +59,13 @@
   &:active:not(:disabled) {
     transform: scale(0.98);
   }
+
+  &:disabled {
+    cursor: not-allowed !important;
+    pointer-events: all; 
+ }
+
+
 }
 
 // Bloque de estilos para pantallas grandes (escritorio y tablets)
@@ -127,61 +139,6 @@
   .table-responsive table {
     min-width: 550px !important;
     margin-bottom: 0;
-  }
-
-  // Estilos generales de la  tabla para mejorar la legibilidad en móvil
-
-  .custom-table-header th {
-    background-color: #e2e7f0d0 !important;
-    color: #000000ce !important;
-    border-bottom: none !important;
-    padding-top: 15px !important;
-    padding-bottom: 15px !important;
-    white-space: nowrap;
-  }
-
-  // Ajuste de ancho del modal para pantallas grandes
-  .modal-custom-width {
-    max-width: 1000px;
-    width: 95%;
-  }
-
-  // Contenedor para mensajes de error con transición suave
-  .error-container {
-    height: 18px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-  }
-
-  // Ajuste de padding y scroll para el cuerpo del modal
-  .modal-body {
-    overflow-y: auto;
-    padding-bottom: 10px;
-  }
-
-  // Animaciones y efectos de botones para mejorar la experiencia de usuario
-  .btn-hover-effect {
-    transition: all 0.2s ease-in-out !important;
-    &:hover:not(:disabled) {
-      transform: scale(1.05);
-      filter: brightness(1.1);
-      box-shadow: 0 0.5rem 1rem rgba(14, 150, 240, 0.4) !important;
-    }
-    &:active:not(:disabled) {
-      transform: scale(0.98);
-    }
-  }
-
-  // Variante sin sombra para botones secundarios
-  .btn-hover-eff {
-    transition: all 0.2s ease-in-out !important;
-    &:hover:not(:disabled) {
-      transform: scale(1.05);
-      filter: brightness(1.1);
-    }
-    &:active:not(:disabled) {
-      transform: scale(0.98);
-    }
   }
 
   // Bloque de estilos para pantallas grandes (escritorio y tablets)
@@ -277,3 +234,9 @@
     padding-right: 1rem !important;
   }
 }
+
+// Estilos para inputs bloqueados para mejorar la experiencia de usuario
+.input-blocked {
+  cursor: not-allowed !important;
+}
+
