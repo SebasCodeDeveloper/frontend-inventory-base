@@ -124,7 +124,7 @@
                   <th class="ps-3 py-2">Producto</th>
                   <th class="text-center">Precio Unit</th>
                   <th class="text-center">Cantidad</th>
-                  <th class="text-end pe-4">Acción</th>
+                  <th class="text-end pe-5">Acción</th>
                 </tr>
               </thead>
 
@@ -136,10 +136,27 @@
                     <td class="text-center fw-semibold text-secondary">{{ item.unitPrice | currency }}</td>
                     <td class="text-center fw-bold text-primary">{{ item.quantity }}</td>
                     <td class="text-end pe-4">
-                      <button type="button" (click)="carrito.splice(i, 1)"
-                        class="btn btn-sm btn-light text-danger border-0 rounded-circle">
-                        <i class="bi bi-trash3-fill"></i>
-                      </button>
+                      <div class="btn-group shadow-sm rounded-pill overflow-hidden">
+
+                        <!-- Botones para disminuir la cantidad del producto-->
+                        <button type="button" (click)="cambiarCantidad(i, -1)"
+                          class="btn btn-sm btn-light border-0 px-2 text-secondary">
+                          <i class="bi bi-dash-lg"></i>
+                        </button>
+                        
+                        <!-- Botones para aumentar la cantidad del producto-->
+                        <button type="button" (click)="cambiarCantidad(i, 1)"
+                          class="btn btn-sm btn-light border-0 px-2 text-primary">
+                          <i class="bi bi-plus-lg"></i>
+                        </button>
+
+                        <!-- Botón para eliminar el producto del carrito -->
+                        <button type="button" (click)="carrito.splice(i, 1)"
+                          class="btn btn-sm btn-light border-0 px-2 text-danger">
+                          <i class="bi bi-trash3-fill"></i>
+                        </button>
+
+                      </div>
                     </td>
                   </tr>
                   <!-- Fila que se muestra cuando el carrito está vacío, con un mensaje y un ícono -->
@@ -155,7 +172,7 @@
         </div>
 
         <!--- Pie del modal con botones para descartar o confirmar la orden, mostrando el total de la venta -->
-        <div
+      <div
           class="modal-footer border-0 px-5 pb-4 mt-2 position-relative d-flex align-items-center footer-container-custom">
           <button type="button"
             class="btn btn-light rounded-pill text-decoration-none fw-bold me-auto btn-hover-eff shadow-sm btn-discard-custom"
