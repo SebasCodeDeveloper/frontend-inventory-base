@@ -1,13 +1,7 @@
 // Para el botón secundario del modal de creación, que es más sutil
 .btn-hover-eff {
-
-  &:hover:not(:disabled) {
-    transform: scale(1.05);     
-    filter: brightness(1.1);   
-  }
-  
-  &:active:not(:disabled) {
-    transform: scale(0.98);   
+ &:hover {
+     transform: translateY(-2px) scale(1.02);
   }
 }
 
