@@ -88,10 +88,17 @@
               <div class="d-flex justify-content-center gap-2">
 
                 <!-- Botón para ver detalle (abre modal) -->
-                <button class="btn-cool edit" (click)="verDetalle(order)" data-bs-toggle="modal"
+                <button class="btn-cool detail" (click)="verDetalle(order)" data-bs-toggle="modal"
                   data-bs-target="#orderDetailModal">
                   <div class="icon-blob">
                     <i class="bi bi-eye"></i>
+                  </div>
+                </button>
+
+                <!-- Botón para editar  (abre modal editar orden) -->
+                <button class="btn-cool edit" (click)="abrirEdicion(order)">
+                  <div class="icon-blob">
+                    <i class="bi bi-pencil"></i>
                   </div>
                 </button>
 
@@ -136,7 +143,6 @@
 
 <!-- Modal de formulario para creación y edición de órdenes con eventos de calida y guardado -->
 <app-order-form-modal 
-  #orderFormModal 
-  (orderCreated)="onOrderSaved()" 
-  (formClosed)="onFormClosed($event)">
+#orderFormModal 
+(orderCreated)="onOrderSaved()">
 </app-order-form-modal>

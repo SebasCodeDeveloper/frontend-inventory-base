@@ -20,7 +20,6 @@ export class OrderFormModalComponent implements OnInit {
   
   // Notifica al componente padre para refrescar la tabla principal tras una operación exitosa
   @Output() orderCreated = new EventEmitter<void>();
-  @Output() formClosed = new EventEmitter<boolean>();
 
 
   // Referencias al DOM para manipular el Modal de Bootstrap y el estado del formulario
@@ -38,9 +37,6 @@ export class OrderFormModalComponent implements OnInit {
   carrito: any[] = [];
   productosCatalogo: any[] = [];
   listaCorreos: string[] = [];
-
-  // Estado para la ver el detalle de una orden
-  private fueGuardado: boolean = false;
 
   // Modelo para la entrada de nuevos productos al carrito
   nuevoItem = {
@@ -197,7 +193,6 @@ export class OrderFormModalComponent implements OnInit {
     request.subscribe({
       next: () => {
         this.isLoading = false;
-        this.fueGuardado = true;
         this.notify.show(this.editMode ? 'update' : 'create', 'Orden'); 
         this.orderCreated.emit(); 
         this.limpiarYcerrar();     
@@ -244,17 +239,8 @@ export class OrderFormModalComponent implements OnInit {
    * Método original para mantener compatibilidad, 
    */
   public limpiarYcerrar(): void {
-
-    const estabaEnEdicion = this.editMode;
-
     this.limpiarDatos();
     this.cerrarModal();
-   
-    if (!this.fueGuardado) {
-      this.formClosed.emit(estabaEnEdicion);
-    }
-
-    this.fueGuardado = false;
   }
 
 /**
