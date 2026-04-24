@@ -20,6 +20,8 @@ export class OrderFormModalComponent implements OnInit {
   
   // Notifica al componente padre para refrescar la tabla principal tras una operación exitosa
   @Output() orderCreated = new EventEmitter<void>();
+  @Output() formClosed = new EventEmitter<boolean>();
+
 
   // Referencias al DOM para manipular el Modal de Bootstrap y el estado del formulario
   @ViewChild('orderFormModal') modalElement!: ElementRef;
@@ -36,6 +38,9 @@ export class OrderFormModalComponent implements OnInit {
   carrito: any[] = [];
   productosCatalogo: any[] = [];
   listaCorreos: string[] = [];
+
+  // Estado para la ver el detalle de una orden
+  private fueGuardado: boolean = false;
 
   // Modelo para la entrada de nuevos productos al carrito
   nuevoItem = {
@@ -192,9 +197,11 @@ export class OrderFormModalComponent implements OnInit {
     request.subscribe({
       next: () => {
         this.isLoading = false;
+        this.fueGuardado = true;
         this.notify.show(this.editMode ? 'update' : 'create', 'Orden'); 
-        this.orderCreated.emit();            
-        this.limpiarYcerrar();               
+        this.orderCreated.emit(); 
+        this.limpiarYcerrar();     
+             
       },
       error: (err) => {
         this.isLoading = false;
@@ -204,28 +211,51 @@ export class OrderFormModalComponent implements OnInit {
     });
   }
 
-  /**
-   * Limpia todos los campos del formulario y cierra el modal mediante la API de Bootstrap
+/**
+   * Resetea el estado y los datos del formulario.
    */
-  public limpiarYcerrar(): void {
-  this.email = null;
-  this.carrito = [];
-  this.editMode = false;
-  this.orderId = null;
-  this.nuevoItem = { productName: '', quantity: 1, unitPrice: 0 };
+  public limpiarDatos(): void {
+    this.email = null;
+    this.carrito = [];
+    this.editMode = false;
+    this.orderId = null;
+    this.nuevoItem = { productName: '', quantity: 1, unitPrice: 0 };
 
-  if (this.orderForm) {
-    this.orderForm.resetForm({ quantity: 1 });
-  }
-
-  const modalElement = document.getElementById('orderCreateModal');
-  if (modalElement) {
-    const modalInstance = bootstrap.Modal.getInstance(modalElement);
-    if (modalInstance) {
-      modalInstance.hide();
+    if (this.orderForm) {
+      this.orderForm.resetForm({ quantity: 1 });
     }
   }
-}
+
+  /**
+   * Busca y cierra el modal de Bootstrap.
+   */
+  public cerrarModal(): void {
+    const modalElement = document.getElementById('orderCreateModal');
+   
+    if (modalElement) {
+      const modalInstance = bootstrap.Modal.getInstance(modalElement);
+      if (modalInstance) {
+        modalInstance.hide();
+      }
+    }
+  }
+
+  /**
+   * Método original para mantener compatibilidad, 
+   */
+  public limpiarYcerrar(): void {
+
+    const estabaEnEdicion = this.editMode;
+
+    this.limpiarDatos();
+    this.cerrarModal();
+   
+    if (!this.fueGuardado) {
+      this.formClosed.emit(estabaEnEdicion);
+    }
+
+    this.fueGuardado = false;
+  }
 
 /**
  * Cambia la cantidad de un ítem en el carrito.
