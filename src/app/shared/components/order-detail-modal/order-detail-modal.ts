@@ -5,6 +5,7 @@ import { OrderService } from '../../../core/services/order';
 import { NotificationService } from '../../../core/services/notification';
 
 declare var bootstrap: any;
+
 /**
  * Componente encargado de visualizar el desglose detallado de una orden.
  * Permite realizar acciones de gestión como cancelación, pago y solicitud de edición.
@@ -60,6 +61,7 @@ export class OrderDetailModalComponent {
    */
   solicitarEdicion(): void {
     if (this.orden) {
+      this.cerrarModalDetalle();
       this.editRequested.emit(this.orden);
     }
   }

@@ -134,6 +134,9 @@
   (actionCompleted)="cargarOrdenes()">
 </app-order-detail-modal>
 
-<!-- Modal de formulario para creación y edición de órdenes -->
-<app-order-form-modal #orderFormModal (orderCreated)="cargarOrdenes()">
+<!-- Modal de formulario para creación y edición de órdenes con eventos de calida y guardado -->
+<app-order-form-modal 
+  #orderFormModal 
+  (orderCreated)="onOrderSaved()" 
+  (formClosed)="onFormClosed($event)">
 </app-order-form-modal>
