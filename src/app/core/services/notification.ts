@@ -32,9 +32,9 @@ export class  NotificationService {
   ) {
     const configs = {
       success: { title: 'Success', msg: 'Operation completed.', icon: 'bi bi-check-circle text-success' },
-      create: { title: 'Created', msg: `New ${entityName.toLowerCase()} active.`, icon: 'bi bi-check-all text-success' },
-      update: { title: 'Updated', msg: 'Changes synchronized.', icon: 'bi bi-pencil-square text-primary' },
-      delete: { title: 'Deleted', msg: 'Record purged.', icon: 'bi bi-trash3-fill text-danger' },
+      create: { title: 'Created', msg: `New ${entityName.charAt(0).toUpperCase() + entityName.slice(1).toLowerCase()} Successfully.`, icon: 'bi bi-check-all text-success' },
+      update: { title: 'Updated', msg: `${entityName.charAt(0).toUpperCase() + entityName.slice(1).toLowerCase()} Updated Successfully. `, icon: 'bi bi-pencil-square text-primary' },
+      delete: { title: 'Deleted', msg: `${entityName.charAt(0).toUpperCase() + entityName.slice(1).toLowerCase()} Deleted Successfully.`, icon: 'bi bi-trash3-fill text-danger' },
       error: { title: 'Error de conexión', msg: 'The operation could not be completed.', icon: 'bi bi-exclamation-octagon-fill text-warning' },
     };
 
