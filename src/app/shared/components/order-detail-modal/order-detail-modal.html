@@ -77,13 +77,9 @@
             style="background: #388eeb; width: 100%; max-width: 460px; padding-top: 12px; padding-bottom: 12px;">
             <i class="bi bi-credit-card-2-back me-2"></i> Confirmar y Pagar
           </button>
-          <!-- Acciones de edición -->
+
           <div class="d-flex gap-2 gap-md-3 justify-content-center flex-wrap flex-sm-nowrap">
-            <button *ngIf="orden.status === 'CREATED'"
-              class="btn btn-light rounded-pill px-4 py-2 border shadow-sm fw-bold text-dark btn-hover-eff"
-              (click)="solicitarEdicion()"  style="min-width: 140px; max-width: 225px;">
-              <i class="bi bi-pencil-square me-1"></i> Editar
-            </button>
+    
             <!-- Acciones de Cancelar -->
             <button *ngIf="orden.status === 'CREATED'"
               class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm fw-bold btn-hover-eff flex-grow-1 flex-sm-grow-0"

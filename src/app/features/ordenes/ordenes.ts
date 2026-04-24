@@ -164,6 +164,7 @@ export class Ordenes implements OnInit {
       modalInstance.show();
     }
   }
+  
   /**
    * Abre el modal de detalle asegurando limpieza previa de instancias.
    */
@@ -199,10 +200,6 @@ export class Ordenes implements OnInit {
 
         if (idEditado) {
           this.ordenSeleccionada = this.listaOrdenes.find((o) => o.orderId === idEditado) || null;
-
-          if (this.ordenSeleccionada) {
-            this.abrirDetalleModal(2000);
-          }
         }
       },
       error: () => {
@@ -211,18 +208,7 @@ export class Ordenes implements OnInit {
       },
     });
   }
-
-  /**
-   * Se ejecuta cuando el modal de formulario se cancela
-   * Se abre el modal del deatalle de  la orden
-   */
-onFormClosed(estabaEditando: boolean): void {
-
-  if (estabaEditando && this.ordenSeleccionada) {
-    this.abrirDetalleModal(0);
-  }
-}
-
+  
   /**
    * Genera dinámicamente el estilo CSS (Glassmorphism) para los badges de estado.
    * @param status Estado de la orden (PAID, CREATED, CANCELLED).
