@@ -8,6 +8,9 @@ import { OrderDetailModalComponent } from '../../shared/components/order-detail-
 import { OrderFormModalComponent } from '../../shared/components/order-form-modal/order-form-modal';
 import { PaginationComponent } from '../../shared/components/pagination/pagination';
 
+// Declaración necesaria para que TypeScript reconozca Bootstrap
+declare var bootstrap: any;
+
 /**
  * Componente principal para la gestión y visualización de órdenes.
  * Implementa lógica de filtrado por email y acciones de control de estado.
@@ -15,7 +18,7 @@ import { PaginationComponent } from '../../shared/components/pagination/paginati
 @Component({
   selector: 'app-ordenes',
   standalone: true,
-  imports: [CommonModule,FormsModule,OrderDetailModalComponent,OrderFormModalComponent,PaginationComponent,],
+  imports: [CommonModule, FormsModule, OrderDetailModalComponent, OrderFormModalComponent, PaginationComponent,],
   templateUrl: './ordenes.html',
   styleUrl: './ordenes.scss',
 })
@@ -153,12 +156,72 @@ export class Ordenes implements OnInit {
    */
   abrirEdicion(orden: OrderReportRs): void {
     this.orderFormModal.patchData(orden);
+
     const modalElement = document.getElementById('orderCreateModal');
+
     if (modalElement) {
       const modalInstance = (window as any).bootstrap.Modal.getOrCreateInstance(modalElement);
       modalInstance.show();
     }
   }
+  /**
+   * Abre el modal de detalle asegurando limpieza previa de instancias.
+   */
+  abrirDetalleModal(delay: number = 0) {
+    setTimeout(() => {
+      const modalElement = document.getElementById('orderDetailModal');
+
+      if (!modalElement) return;
+
+      const existingModal = bootstrap.Modal.getInstance(modalElement);
+
+      if (existingModal) {
+        existingModal.dispose();
+      }
+
+      const modalInstance = new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false,});
+      
+      modalInstance.show();
+    }, delay);
+  }
+
+  /**
+   * Procesa el guardado y gestiona la transición de modales.
+   */
+  onOrderSaved(): void {
+    const idEditado = this.orderFormModal?.editMode ? this.ordenSeleccionada?.orderId : null;
+    this.isLoading = true;
+
+    this.orderService.getOrdersReport().subscribe({
+      next: async (data) => {
+        this.listaOrdenes = data || [];
+        this.isLoading = false;
+
+        if (idEditado) {
+          this.ordenSeleccionada = this.listaOrdenes.find((o) => o.orderId === idEditado) || null;
+
+          if (this.ordenSeleccionada) {
+            this.abrirDetalleModal(2000);
+          }
+        }
+      },
+      error: () => {
+        this.isLoading = false;
+        this.notify.show('error', 'Error', 'No se pudieron actualizar los datos.');
+      },
+    });
+  }
+
+  /**
+   * Se ejecuta cuando el modal de formulario se cancela
+   * Se abre el modal del deatalle de  la orden
+   */
+onFormClosed(estabaEditando: boolean): void {
+
+  if (estabaEditando && this.ordenSeleccionada) {
+    this.abrirDetalleModal(0);
+  }
+}
 
   /**
    * Genera dinámicamente el estilo CSS (Glassmorphism) para los badges de estado.
