@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GetProductByNameRq, ProductRs } from '../../core/models/product.model';
 import { ProductService } from '../../core/services/product';
 import { NotificationService } from '../../core/services/notification';
@@ -29,6 +29,9 @@ export class Productos implements OnInit {
   productoSeleccionado: ProductRs | null = null;
   //Término de búsqueda para filtrar por nombre
   nameBusqueda: string = '';
+  //Vista de modal view
+  isViewMode: boolean = false;
+
 
   //Configuración de campos para el formulario dinámico de usuarios
   paginaActual: number = 1;
@@ -86,42 +89,6 @@ export class Productos implements OnInit {
   ngOnInit(): void {
     this.cargarProductos();
   }
-
-  /**
-   * Función de orden superior que decide si llamar a 'update' o 'create'
-   * según la presencia de un ID. Se pasa como referencia al formulario dinámico.
-   */
-  saveProductAction = (data: any, id?: string) => {
-    return id
-      ? this.productService.updateProduct(id, data)
-      : this.productService.createProduct(data);
-  };
-
-  /**
-   * Limpia la selección para asegurar que el modal se abra en modo "Creación".
-   */
-  prepararNuevoProducto(): void {
-    this.productoSeleccionado = null;
-  }
-
-  /**
-   * Carga los datos de un producto en el estado local para enviarlos al modal de edición.
-   * @param product El producto a editar.
-   */
-  editarProducto(product: ProductRs): void {
-    this.productoSeleccionado = { ...product };
-  }
-
-  /**
-   * Callback ejecutado cuando el formulario dinámico termina una operación exitosa.
-   */
-  onProductOperationSuccess() {
-    const action = this.productoSeleccionado ? 'update' : 'create';
-    this.cargarProductos();
-    this.notify.show(action, 'Product');
-    this.productoSeleccionado = null;
-  }
-
   /**
    * Consulta el catálogo completo de productos.
    */
@@ -142,6 +109,70 @@ export class Productos implements OnInit {
           this.listaProductos = [];
         }
       },
+    });
+  }
+
+  /**
+   * Función de orden superior que decide si llamar a 'update' o 'create'
+   * según la presencia de un ID. Se pasa como referencia al formulario dinámico.
+   */
+  saveProductAction = (data: any, id?: string) => {
+    return id
+      ? this.productService.updateProduct(id, data)
+      : this.productService.createProduct(data);
+  };
+
+  /**
+   * Activa el modo de solo lectura y carga el producto en el formulario.
+   * Utilizado cuando el usuario desea consultar detalles sin modificar.
+   */
+  verProducto(product: ProductRs): void {
+    this.isViewMode = true;
+    this.productoSeleccionado = { ...product };
+  }
+
+  /**
+   * Desactiva el modo de lectura y carga el producto para permitir su edición.
+   */
+  editarProducto(product: ProductRs): void {
+    this.isViewMode = false;
+    this.productoSeleccionado = { ...product };
+  }
+
+  /**
+   * Limpia el estado del producto seleccionado para preparar el formulario
+   * ante la creación de un nuevo registro desde cero.
+   */
+  prepararNuevoProducto(): void {
+    this.isViewMode = false;
+    this.productoSeleccionado = null;
+  }
+
+  /**
+   * Callback ejecutado tras una operación exitosa.
+   * Actualiza la lista local y mantiene el contexto del producto editado.
+   */
+    onProductOperationSuccess() {
+  
+    const idEditado = this.productoSeleccionado ? this.productoSeleccionado.id : null;
+    const action = idEditado ? 'update' : 'create';
+
+        this.productService.getProducts().subscribe({
+      next: (data) => {
+        this.listaProductos = data || [];
+
+        if (idEditado) {
+          this.productoSeleccionado = this.listaProductos.find(p => p.id === idEditado) || null;
+        } else {
+
+          this.productoSeleccionado = null;
+        }
+
+        this.notify.show(action, 'Product');
+      },
+      error: (err) => {
+        this.notify.show('error', 'Product', 'Error al sincronizar los datos.');
+      }
     });
   }
 

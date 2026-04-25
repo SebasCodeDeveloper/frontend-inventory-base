@@ -1,24 +1,31 @@
 <div class="blueprint-bg"></div>
 <!-- Contenedor principal -->
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="glass-form">
+
   <div class="text-center mb-4">
+    
     <h3 class="fw-bold text-dark mb-0 uppercase">
-      {{ isEditMode ? 'Modify ' + title : 'Create ' + title }}
+      {{ isReadOnly ? 'View ' + title : (isEditMode ? 'Modify ' + title : 'Create ' + title) }}
     </h3>
+
     <p class="text-muted small">
-      {{ isEditMode ? 'Edit existing record' : 'Create a new entry' }}
+      {{ isReadOnly ? 'Viewing details' : (isEditMode ? 'Editing existing record' : 'Create a new entry') }}
     </p>
+
   </div>
 
   <!-- Contenedor de errores del servidor -->
   <div *ngIf="backendErrors.length > 0" class="mb-3 server-errors-container">
+
     <div *ngFor="let error of backendErrors" class="mac-error-text server-error">
       <i class="bi bi-exclamation-triangle-fill"></i> {{ error }}
     </div>
+
   </div>
 
   <!-- Campos del formulario generados dinámicamente -->
   <div *ngFor="let field of fields" class="mb-3">
+
     <label class="mac-label" [class.text-mac-blue]="form.get(field.name)?.invalid && form.get(field.name)?.touched">
       {{ field.label }}
     </label>
@@ -27,29 +34,41 @@
       [class.w-50]="field.type === 'number'"
       [class.is-invalid-mac]="form.get(field.name)?.invalid && form.get(field.name)?.touched"
       [placeholder]="field.placeholder || ''">
+
     <div class="mac-error-text" *ngIf="form.get(field.name)?.invalid && form.get(field.name)?.touched">
       <i class="bi bi-info-circle-fill"></i>
+
       <span *ngIf="form.get(field.name)?.errors?.['required']"> Este campo es requerido.</span>
+
       <span *ngIf="form.get(field.name)?.errors?.['minlength']">
-        Debe tener al menos {{ form.get(field.name)?.errors?.['minlength'].requiredLength }} letras.</span>
-      <span *ngIf="form.get(field.name)?.errors?.['email']"> Formato de correo inválido.</span>
+        Debe tener al menos {{ form.get(field.name)?.errors?.['minlength'].requiredLength }} letras.
+      </span>
+
+      <span *ngIf="form.get(field.name)?.errors?.['email']"> Formato de correo inválido.
+      </span>
 
       <span *ngIf="form.get(field.name)?.errors?.['min']">
         {{ field.name === 'age' ? 'La edad debe ser mayor a 0.' : 'El stock no puede ser negativo.' }}
       </span>
 
-      <span *ngIf="form.get(field.name)?.errors?.['max']"> El valor excede el límite permitido.</span>
+      <span *ngIf="form.get(field.name)?.errors?.['max']">
+        El valor excede el límite permitido.
+      </span>
+
     </div>
   </div>
 
   <!-- Botones de acción -->
   <div class="d-flex justify-content-center gap-4  pt-3 border-top border-light">
-    <button type="button" id="closeModalBtn" class="btn-mac-secondary" data-bs-dismiss="modal">
-      Cancelar
+
+    <button type="button" class="btn-mac-secondary" data-bs-dismiss="modal">
+      {{ isReadOnly ? 'Cerrar' : 'Cancelar' }}
     </button>
-    <button type="submit" class="btn-mac-primary" [disabled]="form.invalid">
+
+    <button *ngIf="!isReadOnly" type="submit" class="btn-mac-primary" [disabled]="form.invalid">
       <i class="bi" [ngClass]="isEditMode ? 'bi-save' : 'bi bi-sliders'"></i>
       {{ isEditMode ? 'Save Changes' : 'Create ' + title }}
     </button>
+
   </div>
 </form>
