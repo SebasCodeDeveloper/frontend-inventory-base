@@ -88,11 +88,19 @@
             <td class="text-center">
               <div class="d-flex justify-content-center gap-2">
 
-                <!-- Botón para editar (abre modal) -->
+                <!-- Botón para ver producto (abre modal) -->
+                <button class="btn-cool view" (click)="verProducto(prod)" data-bs-toggle="modal"
+                  data-bs-target="#productModal">
+                  <div class="icon-blob">
+                    <i class="bi bi-eye"></i>
+                  </div>
+                </button>
+
+                <!-- Botón para editar  (abre modal editar orden) -->
                 <button class="btn-cool edit" (click)="editarProducto(prod)" data-bs-toggle="modal"
                   data-bs-target="#productModal">
                   <div class="icon-blob">
-                    <i class="bi bi-cpu"></i>
+                    <i class="bi bi-pencil"></i>
                   </div>
                 </button>
 
@@ -142,7 +150,7 @@
       <div class="modal-body p-0">
 
         <app-dynamic-form *ngIf="!isLoading" [title]="'Product'" [modalId]="'productModal'" [fields]="productFields"
-          [dataToEdit]="productoSeleccionado" [saveAction]="saveProductAction"
+          [dataToEdit]="productoSeleccionado" [isReadOnly]="isViewMode" [saveAction]="saveProductAction"
           (operationSuccess)="onProductOperationSuccess()" (onCancel)="productoSeleccionado = null">
         </app-dynamic-form>
 

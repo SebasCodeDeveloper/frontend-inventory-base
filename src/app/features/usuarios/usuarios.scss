@@ -112,11 +112,19 @@
   }
 
 // editar color azul intenso
-  &.edit .icon-blob {
+  &.view .icon-blob {
     color: #0368ff; 
     background: rgba(0, 77, 192, 0.2); 
     box-shadow: 0 4px 10px rgba(0, 77, 192, 0.15);
     border: 2px solid rgba(0, 77, 192, 0.4); 
+  }
+
+  // editar producto (Ámbar/Naranja)
+  &.edit .icon-blob {
+    color: #ff9500; 
+    background: rgba(255, 149, 0, 0.2); 
+    box-shadow: 0 4px 10px rgba(255, 149, 0, 0.15);
+    border: 2px solid rgba(255, 149, 0, 0.4);
   }
 
   // eliminar color rojo intenso
@@ -134,11 +142,18 @@
       left: 100%;
     }
 
-    &.edit .icon-blob {
+    &.view .icon-blob {
       background: #004dc0; 
       color: white;
       box-shadow: 0 8px 20px rgba(0, 77, 192, 0.5);
       border-color: #003a91;
+    }
+
+    &.edit .icon-blob {
+      background: #ff9500;
+      color: white;
+      box-shadow: 0 8px 20px rgba(255, 149, 0, 0.5);
+      border-color: #d67e00;
     }
 
     &.delete .icon-blob {

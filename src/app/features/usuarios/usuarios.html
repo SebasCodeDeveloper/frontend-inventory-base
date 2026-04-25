@@ -82,11 +82,20 @@
             <!-- Acciones disponibles para cada usuario -->
             <td class="text-center">
               <div class="d-flex justify-content-center gap-2">
+
                 <!-- Botón para editar (abre modal) -->
-                <button class="btn-cool edit" (click)="usuarioSeleccionado = user" data-bs-toggle="modal"
+                <button class="btn-cool view" (click)="verUsuario(user)" data-bs-toggle="modal"
                   data-bs-target="#userModal">
                   <div class="icon-blob">
-                    <i class="bi bi-cpu"></i>
+                    <i class="bi bi-eye"></i>
+                  </div>
+                </button>
+
+                <!-- Botón para editar  (abre modal editar usuario) -->
+                <button class="btn-cool edit" (click)="editarUsuario(user)" data-bs-toggle="modal"
+                  data-bs-target="#userModal">
+                  <div class="icon-blob">
+                    <i class="bi bi-pencil"></i>
                   </div>
                 </button>
 
@@ -101,6 +110,7 @@
               </div>
             </td>
           </tr>
+
           <!-- Mensaje cuando no hay usuarios registrados -->
           <tr *ngIf="listaUsuarios.length === 0 && !errorMessage">
             <td colspan="4" class="text-center py-5 animate__animated animate__fadeIn">
@@ -121,6 +131,7 @@
         </tbody>
       </table>
     </div>
+
     <!-- Componente de paginación -->
     <app-pagination [paginaActual]="paginaActual" [totalItems]="listaUsuarios.length" [itemsPorPagina]="itemsPorPagina"
       (pageChanged)="onPageChange($event)">
@@ -134,10 +145,12 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 bg-transparent">
       <div class="modal-body p-0">
-        <app-dynamic-form [title]="'User'" [modalId]="'userModal'" [fields]="userFields"
-          [dataToEdit]="usuarioSeleccionado" [saveAction]="saveUserAction" (operationSuccess)="onUserOperationSuccess()"
-          (onCancel)="usuarioSeleccionado = null">
+
+        <app-dynamic-form *ngIf="!isLoading" [title]="'User'" [modalId]="'userModal'" [fields]="userFields"
+          [dataToEdit]="usuarioSeleccionado" [isReadOnly]="isViewMode" [saveAction]="saveUserAction"
+          (operationSuccess)="onUserOperationSuccess()" (onCancel)="usuarioSeleccionado = null">
         </app-dynamic-form>
+
       </div>
     </div>
   </div>
