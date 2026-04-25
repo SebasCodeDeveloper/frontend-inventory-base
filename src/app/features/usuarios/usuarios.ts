@@ -30,6 +30,8 @@ export class Usuarios implements OnInit {
   usuarioSeleccionado: User | null = null;
   //Modelo vinculado al campo de búsqueda por correo
   emailBusqueda: string = '';
+  //Vista de modal view
+  isViewMode: boolean = false;
 
   //Configuración de campos para el formulario dinámico de usuarios
   paginaActual: number = 1;
@@ -94,29 +96,56 @@ export class Usuarios implements OnInit {
   saveUserAction = (data: any, id?: any) => {
     return id ? this.userService.updateUser(id, data) : this.userService.createUser(data);
   };
-
-  /**
-   * Limpia la selección para asegurar que el formulario abra campos vacíos.
+  
+/**
+   * Activa el modo de solo lectura y carga el usuario.
+   * Utilizado cuando el usuario desea consultar detalles sin modificar.
    */
-  prepararNuevoUsuario(): void {
-    this.usuarioSeleccionado = null;
+  verUsuario(user: User): void {
+    this.isViewMode = true;
+    this.usuarioSeleccionado = { ...user };
   }
 
   /**
-   * Clona los datos del usuario seleccionado para edición.
-   * Se usa el operador spread {...} para evitar mutaciones directas en la tabla antes de guardar.
+   * Desactiva el modo de lectura y carga el usuario para permitir su edición.
    */
   editarUsuario(user: User): void {
+    this.isViewMode = false;
     this.usuarioSeleccionado = { ...user };
+  }
+
+  /**
+   * Limpia el estado y desactiva el modo lectura para creación nueva.
+   */
+  prepararNuevoUsuario(): void {
+    this.isViewMode = false;
+    this.usuarioSeleccionado = null;
   }
 
   /**
    * Callback de éxito del formulario: Refresca la tabla y lanza notificación visual.
    */
-  onUserOperationSuccess() {
-    const action = this.usuarioSeleccionado ? 'update' : 'create';
-    this.cargarUsuarios();
-    this.notify.show(action, 'User');
+
+onUserOperationSuccess() {
+    const idEditado = this.usuarioSeleccionado ? this.usuarioSeleccionado.id : null;
+    const action = idEditado ? 'update' : 'create';
+
+    this.userService.getUsers().subscribe({
+      next: (data) => {
+        this.listaUsuarios = data || [];
+
+        if (idEditado) {
+          this.usuarioSeleccionado = this.listaUsuarios.find(u => u.id === idEditado) || null;
+        } else {
+          this.usuarioSeleccionado = null;
+        }
+
+        this.notify.show(action, 'User');
+      },
+      error: (err) => {
+        this.notify.show('error', 'User', 'Error al sincronizar los datos.');
+      }
+    });
   }
 
   /**
