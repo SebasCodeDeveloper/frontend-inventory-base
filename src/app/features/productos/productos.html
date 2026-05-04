@@ -56,8 +56,8 @@
         <thead>
           <tr>
             <th class="ps-4">Producto</th>
-            <th>Precio</th>
-            <th>Stock</th>
+            <th class="text-center">Precio</th>
+            <th class="text-center">Stock</th>
             <th class="text-center">Acciones</th>
           </tr>
         </thead>
@@ -74,10 +74,10 @@
             </td>
 
             <!-- Precio en unidad  formateado en moneda COP -->
-            <td class="fw-bold text-dark">{{ prod.price |currency: 'COP ': 'code'}}</td>
+            <td class="text-center fw-bold text-dark">{{ prod.price |currency: 'COP ': 'code'}}</td>
 
             <!-- Estado y cantidad con estilos dinámicos -->
-            <td>
+            <td class="text-center">
               <span class="badge rounded-pill px-3" [ngStyle]="{'background': prod.stock < 10 ? 'rgba(211, 26, 44, 0.15)' : 'rgba(39, 201, 63, 0.15)', 
                             'color': prod.stock < 10 ? '#d31a2c' : '#1aab29'}">
                 {{ prod.stock }} {{ prod.stock === 1 ? 'und' : 'unds' }}

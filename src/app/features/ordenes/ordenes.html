@@ -55,9 +55,9 @@
         <!-- Cabecera de la tabla -->
         <thead>
           <tr>
-            <th class="ps-4">Propietario</th>
-            <th>Total</th>
-            <th>Estado</th>
+            <th class="text-center" style="width: 27%; white-space: nowrap;">Propietario</th>
+            <th class="text-center">Total</th>
+            <th class="text-center">Estado</th>
             <th class="text-center">Acciones</th>
           </tr>
         </thead>
@@ -68,16 +68,16 @@
           <!-- Iteración de la lista de órdenes -->
           <tr *ngFor="let order of ordenesPaginadas">
             <!-- Información del propietario (email + ID corto) -->
-            <td class="ps-4">
+            <td class="text-center">
               <div class="fw-semibold text-dark">{{ order.email }}</div>
               <div class="text-muted small">ID: {{ order.orderId.substring(0,8) }}...</div>
             </td>
 
             <!-- Total formateado en moneda COP -->
-            <td class="fw-bold text-dark"> {{ order.total | currency: 'COP ': 'code'}}</td>
+            <td class="text-center fw-bold text-dark"> {{ order.total | currency: 'COP ': 'code'}}</td>
 
             <!-- Estado con estilos dinámicos -->
-            <td>
+            <td class="text-center">
               <span class="badge rounded-pill px-3" [ngStyle]="getStatusStyles(order.status)">
                 {{ order.status }}
               </span>

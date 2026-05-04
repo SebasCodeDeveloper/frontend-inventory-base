@@ -8,7 +8,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  age: number;
+  numero: string;
   orders?: any[];
 }
 

@@ -3,7 +3,6 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="glass-form">
 
   <div class="text-center mb-4">
-    
     <h3 class="fw-bold text-dark mb-0 uppercase">
       {{ isReadOnly ? 'View ' + title : (isEditMode ? 'Modify ' + title : 'Create ' + title) }}
     </h3>
@@ -11,16 +10,13 @@
     <p class="text-muted small">
       {{ isReadOnly ? 'Viewing details' : (isEditMode ? 'Editing existing record' : 'Create a new entry') }}
     </p>
-
   </div>
 
   <!-- Contenedor de errores del servidor -->
   <div *ngIf="backendErrors.length > 0" class="mb-3 server-errors-container">
-
     <div *ngFor="let error of backendErrors" class="mac-error-text server-error">
-      <i class="bi bi-exclamation-triangle-fill"></i> {{ error }}
+      <i class="bi bi-exclamation-triangle-fill ">   {{  error }} </i> 
     </div>
-
   </div>
 
   <!-- Campos del formulario generados dinámicamente -->
@@ -33,28 +29,36 @@
     <input [type]="field.type" [formControlName]="field.name" class="mac-input shadow-sm"
       [class.w-50]="field.type === 'number'"
       [class.is-invalid-mac]="form.get(field.name)?.invalid && form.get(field.name)?.touched"
-      [placeholder]="field.placeholder || ''">
+      [placeholder]="field.placeholder || ''" (keypress)="field.name === 'numero' ? soloNumeros($event) : null"
+      (paste)="field.name === 'numero' ? $event.preventDefault() : null">
 
     <div class="mac-error-text" *ngIf="form.get(field.name)?.invalid && form.get(field.name)?.touched">
-      <i class="bi bi-info-circle-fill"></i>
 
-      <span *ngIf="form.get(field.name)?.errors?.['required']"> Este campo es requerido.</span>
+      <div *ngIf="form.get(field.name)?.errors?.['required']">
+        <i class="bi bi-info-circle-fill"></i> Este campo es requerido.
+      </div>
 
-      <span *ngIf="form.get(field.name)?.errors?.['minlength']">
-        Debe tener al menos {{ form.get(field.name)?.errors?.['minlength'].requiredLength }} letras.
-      </span>
+      <div *ngIf="form.get(field.name)?.errors?.['minlength']">
+        <i class="bi bi-info-circle-fill"></i> Debe tener al menos {{
+        form.get(field.name)?.errors?.['minlength'].requiredLength }}
+        {{ field.name === 'numero' ? 'números.' : 'letras.' }}
+      </div>
+
+      <div
+        *ngIf="form.get(field.name)?.errors?.['pattern'] && form.get(field.name)?.value?.length >= 1 && !form.get(field.name)?.value?.startsWith('3')">
+        <i class="bi bi-info-circle-fill"></i> El número debe iniciar con 3.
+      </div>
 
       <span *ngIf="form.get(field.name)?.errors?.['email']"> Formato de correo inválido.
       </span>
 
       <span *ngIf="form.get(field.name)?.errors?.['min']">
-        {{ field.name === 'age' ? 'La edad debe ser mayor a 0.' : 'El stock no puede ser negativo.' }}
+        {{ field.name === 'numero' ? 'El número no puede ser inferior al mínimo permitido.' : 'El stock no puede ser negativo.' }}
       </span>
 
-      <span *ngIf="form.get(field.name)?.errors?.['max']">
-        El valor excede el límite permitido.
-      </span>
-
+      <div *ngIf="form.get(field.name)?.errors?.['maxlength']">
+        <i class="bi bi-info-circle-fill"></i> El valor excede el límite permitido.
+      </div>
     </div>
   </div>
 

@@ -30,3 +30,34 @@
     padding-top: 10px !important;
     padding-bottom: 10px !important;
 }
+
+/* Contenedor principal de la orden */
+.order-card {
+  background: #f8f9fa;
+  border: 1px solid #e2e8f0;
+  max-width: 510px;
+  margin: auto;
+  
+  // Encabezado de la tabla (con el margen que pediste)
+  .order-header {
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+  }
+
+  // Columnas unificadas para que todo se alinee perfecto
+  .col-product { flex: 1.2; }
+  .col-qty     { flex: 0.6; text-align: center; }
+  .col-price   { flex: 1.4; text-align: end; }
+  .col-total   { flex: 1.5; text-align: end; }
+
+  // Estilos de texto
+  .product-name {
+    font-size: 0.85rem;
+    line-height: 1.2;
+  }
+
+  .font-mono {
+    font-family: monospace;
+    font-size: 0.85rem;
+  }
+}
