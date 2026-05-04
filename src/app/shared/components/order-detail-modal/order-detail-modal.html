@@ -7,11 +7,12 @@
       <div class="modal-body p-4" *ngIf="orden">
 
         <!-- Encabezado del modal con título e indicador de estado -->
-        <div class="position-relative mb-4">
-          <div class="text-center">
+        <div class="position-relative mb-2">
+          <div class="text-center mb-2">
             <h4 class="fw-bold" style="letter-spacing: -1px; color: #000000;">
               <i class="bi bi-receipt me-2"></i>Order Details
             </h4>
+
             <!-- Estado de la orden con estilos condicionales -->
             <span class="badge rounded-pill px-3" [ngClass]="{
                     'bg-success-subtle text-success': orden.status === 'PAID', 
@@ -21,18 +22,30 @@
               style="font-size: 0.75rem; letter-spacing: 0.5px; text-transform: uppercase; border: 1px solid currentColor;">
               {{ orden.status }}
             </span>
+
+                <!-- Estilo para bi-person-circle depende el estado se pone el color -->
+            <div class="d-flex align-items-center justify-content-center mt-1 text-dark">
+              <i class="bi bi-person-circle me-1" [ngClass]="{
+                          'text-success': orden.status === 'PAID',
+                          'text-primary': orden.status === 'CREATED',
+                          'text-danger': orden.status === 'CANCELLED'
+                        }"></i>
+              <span class="fw-bold">Usuario:</span>
+              <span class="ms-1">{{ orden.email }}</span>
+            </div>
           </div>
+          
           <button type="button" class="btn-close shadow-none position-absolute top-0 end-0"
             data-bs-dismiss="modal"></button>
         </div>
 
         <!-- Detalles del propietario y resumen de la orden -->
-        <div class="rounded-4 p-3 mb-4 shadow-sm" style="background: #f8f9fa; border: 1px solid #e2e8f0;">
-          <div class="d-flex text-muted fw-bold mb-3" style="font-size: 0.65rem; letter-spacing: 1px;">
-            <div style="flex: 1.2;">PRODUCTO</div>
-            <div class="text-center" style="flex: 0.6;">CANT</div>
-            <div class="text-end" style="flex: 1.4;">PRECIO U</div>
-            <div class="text-end" style="flex: 1.5;">SUBTOTAL</div>
+        <div class="rounded-4 p-3 mb-4 shadow-sm order-card mx-auto" >
+          <div class="d-flex text-muted fw-bold order-header">
+            <div class="col-product">PRODUCTO</div>
+            <div class="col-qty">CANT</div>
+            <div class="col-price">PRECIO U</div>
+            <div class="col-total">SUBTOTAL</div>
           </div>
 
           <!-- Listado de productos dentro de la orden -->
@@ -79,15 +92,17 @@
           </button>
 
           <div class="d-flex gap-2 gap-md-3 justify-content-center flex-wrap flex-sm-nowrap">
-    
+
             <!-- Acciones de Cancelar -->
             <button *ngIf="orden.status === 'CREATED'"
               class="btn btn-outline-danger rounded-pill px-4 py-2 shadow-sm fw-bold btn-hover-eff flex-grow-1 flex-sm-grow-0"
               (click)="cancelar()" style="min-width: 140px; max-width: 225px;">
               <i class="bi bi-x-circle me-1"></i> Cancelar Orden
             </button>
+
           </div>
         </div>
+
         <!-- Información de seguridad   -->
         <div class="mt-4 pt-3 border-top border-light text-center">
           <p class="text-muted mb-0 d-flex align-items-center justify-content-center gap-1" style="font-size: 0.75rem;">

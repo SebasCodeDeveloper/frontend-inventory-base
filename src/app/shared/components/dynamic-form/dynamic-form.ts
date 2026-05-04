@@ -160,6 +160,21 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
   }
 
   /**
+   * Restringe la entrada del teclado para permitir únicamente dígitos numéricos.
+   * Utiliza los códigos ASCII 48 (0) al 57 (9) y previene la acción por defecto
+   * si el carácter no es un número.
+   */
+  soloNumeros(event: KeyboardEvent) {
+    const charCode = event.which ? event.which : event.keyCode;
+    // Solo permite números (teclas del 0 al 9, códigos ASCII 48-57)
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  }
+  
+  /**
    * Interpreta diferentes formatos de error del Backend.
    * Maneja tanto strings simples como arrays de mensajes (típicos de NestJS/class-validator).
    */

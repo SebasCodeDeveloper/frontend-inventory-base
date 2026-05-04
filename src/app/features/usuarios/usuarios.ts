@@ -57,11 +57,14 @@ export class Usuarios implements OnInit {
       validators: [Validators.required, Validators.email],
     },
     {
-      name: 'age',
-      label: 'ASSIGNED AGE',
-      type: 'number',
-      placeholder: '00',
-      validators: [Validators.required, Validators.min(1), Validators.max(120)],
+      name: 'numero',
+      label: 'CELL PHONE NUMBER',
+      type: 'text',
+      placeholder: 'Ej: 3101234567',
+      validators: [Validators.required,
+    Validators.minLength(10),
+    Validators.maxLength(10),
+    Validators.pattern('^3[0-9]{9}$')],
     },
   ];
   constructor(
