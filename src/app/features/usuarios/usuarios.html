@@ -54,9 +54,9 @@
         <!-- Cabecera de la tabla -->
         <thead>
           <tr>
-            <th class="ps-4">Nombre</th>
-            <th>Email</th>
-            <th>Edad</th>
+            <th class="text-center" style="width: 27%; white-space: nowrap;">Nombre</th>
+            <th class="text-center">Email</th>
+            <th class="text-center">Numero</th>
             <th class="text-center">Acciones</th>
           </tr>
         </thead>
@@ -66,16 +66,16 @@
           <!-- Iteración de la lista de usuarios -->
           <tr *ngFor="let user of usuariosPaginados">
             <!-- Información del propietario (email) -->
-            <td class="ps-4">
+            <td class="text-center">
               <div class="fw-semibold text-dark">{{ user.name }}</div>
             </td>
             <!-- Email del usuario -->
-            <td class="text-secondary">{{ user.email }}</td>
-            <td>
+            <td class="text-center">{{ user.email }}</td>
+            <td class="text-center">
               <!-- edad con estilos  -->
               <span class="badge rounded-pill px-3"
                 style="background: rgba(0, 122, 255, 0.1); color: #007aff; font-weight: 600;">
-                {{ user.age }} años
+                {{ user.numero }} 
               </span>
             </td>
 

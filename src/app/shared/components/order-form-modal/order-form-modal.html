@@ -2,7 +2,7 @@
 <div #orderCreateModal class="modal fade shadow modal-order-main" id="orderCreateModal" tabindex="-1"
   aria-labelledby="orderCreateModalLabel" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-custom-width">
-    <div class="modal-content border-0 shadow-lg rounded-5">
+    <div class="modal-content border-0 shadow-lg rounded-5 overflow-hidden">
 
       <!-- Encabezado del modal con título dinámico según el modo (creación o edición) y botón de cierre -->
       <div class="modal-header border-0 px-4 pt-4">
@@ -19,101 +19,119 @@
       <form #orderForm="ngForm" (keydown.enter)="$event.preventDefault()">
         <div class="modal-body px-5">
 
-          <!-- Sección para ingresar el correo del cliente -->
-          <div class="mb-3 p-3 bg-light border-0 rounded-4 px-4 shadow-sm">
-            <label class="form-label small fw-bold text-muted mb-1">CORREO DEL CLIENTE</label>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="card border-1 rounded-4 shadow-sm h-1000 border-0 bg-light">
+                <div class="card-body p-4"> <label class="small fw-bold text-primary mb-2 d-block px-2">
+                    <i class="bi bi-person-badge me-1"></i> INFORMACIÓN DEL CLIENTE
+                  </label>
 
-            <!-- Input con validación para correo electrónico -->
-            <div class="input-group border rounded-pill bg-white px-3 border-2 shadow-sm"
-              [ngClass]="{'border-danger': userEmail.invalid && (userEmail.dirty || userEmail.touched)}"
-              style="height: 40px;">
-              <span class="input-group-text bg-transparent border-0 text-muted">
-                <i class="bi bi-envelope"></i>
-              </span>
-              <input type="email" [(ngModel)]="email" name="email" #userEmail="ngModel" required email
-                class="form-control border-0 shadow-none bg-transparent" placeholder="ejemplo@correo.com"
-                list="listaCorreos">
+                  <!-- Input con validación para correo electrónico -->
+                  <div class="input-group rounded-pill bg-white px-3 border-2 shadow-sm"
+                    [ngClass]="(userEmail.invalid && (userEmail.dirty || userEmail.touched)) ? 'border border-danger' : 'border border-light'"
+                    style="height: 40px;">
 
-              <datalist id="listaCorreos">
-                <option *ngFor="let correo of listaCorreos" [value]="correo"></option>
-              </datalist>
+                    <span class="input-group-text bg-transparent border-0 text-muted">
+                      <i class="bi bi-envelope"></i>
+                    </span>
 
-              <!-- Icono de error y mensaje de validación para el correo electrónico -->
-              <span class="input-group-text bg-transparent border-0 text-danger"
-                *ngIf="userEmail.invalid && (userEmail.dirty || userEmail.touched)">
-                <i class="bi bi-exclamation-circle"></i>
-              </span>
+                    <input type="email" [(ngModel)]="email" name="email" #userEmail="ngModel" required email
+                      class="form-control border-0 shadow-none bg-transparent" placeholder="ejemplo@correo.com">
+
+                    <!-- Icono de error y mensaje de validación para el correo electrónico -->
+                    <span class="input-group-text bg-transparent border-0 text-danger"
+                      *ngIf="userEmail.invalid && (userEmail.dirty || userEmail.touched)">
+                      <i class="bi bi-exclamation-circle"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <!-- Mensaje de error animado para el correo electrónico -->
-            <div style="height: 15px; margin-top: 4px;">
-              <div class="text-danger small animate__animated animate__fadeIn"
-                style="font-size: 0.7rem; line-height: 1;"
-                *ngIf="userEmail.invalid && (userEmail.dirty || userEmail.touched)">
-                Ingrese un correo electrónico válido.
+
+            <div class="col-md-6">
+              <div class="card border-1 border-primary rounded-4 shadow-sm h-200" style="background-color: #f8faff;">
+                <div class="card-body p-4">
+                  <label class="small fw-bold text-primary mb-2 d-block px-2">
+                    <i class="bi bi-tools me-1"></i> DETALLES DEL TRABAJO
+                  </label>
+                  <div class="row g-2">
+                    <div class="col-7">
+                      <input type="text" name="tipoTrabajo" class="form-control rounded-pill border-1 shadow-sm px-3"
+                        style="height: 40px; font-size: 0.85rem;" placeholder="Tipo de Trabajo">
+                    </div>
+                    <div class="col-5">
+                      <div class="input-group border rounded-pill bg-white px-2 shadow-sm" style="height: 40px;">
+                        <span class="input-group-text bg-transparent border-0 text-success fw-bold pe-1">$</span>
+                        <input type="number" name="precioTrabajo"
+                          class="form-control border-0 shadow-none bg-transparent ps-0" placeholder="0.00"
+                          style="font-size: 0.85rem;">
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Sección para agregar productos a la orden -->
-          <div class="row g-4 align-items-start mb-2">
-            <div class="col-12 col-md-5">
-              <label class="form-label small fw-bold text-muted mb-1 px-2">PRODUCTO</label>
-              <input type="text" [(ngModel)]="nuevoItem.productName" #prodName="ngModel"
-                (ngModelChange)="buscarPrecio()" name="productName" required
-                class="form-control rounded-pill px-3 border-2 shadow-sm"
-                [ngClass]="{'is-invalid': prodName.invalid && (prodName.dirty || prodName.touched)}"
-                style="height: 35px;" placeholder="Escribir Producto" list="listaProductos">
+          <div class="p-3 border rounded-4 bg-light shadow-sm mb-3">
+            <label class="small fw-bold text-muted mb-2 d-block px-2">AGREGAR PRODUCTOS A LA ORDEN</label>
+            <div class="row g-2 align-items-start">
+              <div class="col-md-5">
 
-              <datalist id="listaProductos">
-                <option *ngFor="let p of productosCatalogo" [value]="p.name"></option>
-              </datalist>
-
-              <div style="height: 15px; margin-top: 4px;">
-                <div class="text-danger small px-2 animate__animated animate__fadeIn"
-                  style="font-size: 0.7rem; line-height: 1;"
-                  *ngIf="prodName.invalid && (prodName.dirty || prodName.touched)">
-                  El nombre del producto es obligatorio.
-                </div>
-              </div>
-            </div>
-
-            <!|-- Sección para mostrar el precio unitario del producto seleccionado -->
-              <div class="col-7 col-md-3">
-                <label class="form-label small fw-bold text-muted mb-1 px-2">PRECIO UNITARIO</label>
-                <div class="input-group border border-light-subtle rounded-pill bg-body-tertiary px-3 shadow-none input-blocked"
+                <div class="input-group border rounded-pill bg-white px-2 shadow-sm border-2"
+                  [ngClass]="{'border-danger': prodName.invalid && (prodName.dirty || prodName.touched)}"
                   style="height: 35px;">
+
+                  <span class="input-group-text bg-transparent border-0"><i
+                      class="bi bi-box-seam text-muted"></i>
+                    </span>
+
+                  <input type="text" [(ngModel)]="nuevoItem.productName" #prodName="ngModel"
+                    (ngModelChange)="buscarPrecio()" name="productName" required
+                    class="form-control border-0 shadow-none bg-transparent" placeholder="Escribir producto..."
+                    list="listaProductos">
+
+                  <span class="input-group-text bg-transparent border-0 text-danger"
+                    *ngIf="prodName.invalid && (prodName.dirty || prodName.touched)">
+                    <i class="bi bi-exclamation-circle"></i>
+                  </span>
+                </div>
+
+                <div style="height: 15px; margin-top: -4px;">
+                  <small class="text-danger px-2 animate__animated animate__fadeIn" style="font-size: 0.65rem;"
+                    *ngIf="prodName.invalid && (prodName.dirty || prodName.touched)">
+                    El nombre del producto es obligatorio.
+                  </small>
+                </div>
+
+              </div>
+
+              <div class="col-md-3">
+                <div class="input-group border rounded-pill bg-body-secondary px-3 shadow-none"
+                  style="height: 35px; opacity: 0.8;">
                   <span class="input-group-text bg-transparent border-0 text-primary fw-bold pe-1">$</span>
                   <input type="text" [value]="nuevoItem.unitPrice | number:'1.2-2'" readonly
-                    class="form-control border-0 shadow-none bg-transparent fw-bold text-primary ps-1 input-blocked">
+                    class="form-control border-0 shadow-none bg-transparent fw-bold text-primary ps-1">
                 </div>
-                <div style="height: 15px;"></div>
               </div>
 
-              <!-- Sección para ingresar la cantidad del producto a agregar -->
-              <div class="col-5 col-md-2">
-                <label class="form-label small fw-bold text-muted mb-1 px-2">CANTIDAD</label>
+              <div class="col-md-2">
                 <input type="number" [(ngModel)]="nuevoItem.quantity" #prodQty="ngModel" name="quantity" required
-                  min="1" class="form-control rounded-pill px-3 border-2 shadow-sm text-center"
-                  [ngClass]="{'is-invalid': prodQty.invalid && (prodQty.dirty || prodQty.touched)}"
-                  style="height: 35px;">
-                <div style="height: 15px; margin-top: 4px;">
-                  <div class="text-danger small px-2 animate__animated animate__fadeIn"
-                    style="font-size: 0.7rem; line-height: 1;"
-                    *ngIf="prodQty.invalid && (prodQty.dirty || prodQty.touched)">
-                    Mínimo 1 unidad.
-                  </div>
-                </div>
+                  min="1" class="form-control rounded-pill border-2 shadow-sm text-center fw-bold"
+                  [ngClass]="{'border-danger': prodQty.invalid && (prodQty.dirty || prodQty.touched)}"
+                  style="height: 35px;" placeholder="Cant.">
               </div>
 
               <!-- Botón para agregar el producto al carrito, deshabilitado si el formulario es inválido -->
-              <div class="col-12 col-md-1 text-end pt-2 pt-md-4">
+              <div class="col-md-2 text-end">
                 <button type="button" (click)="agregarAlCarrito(prodName)"
                   [disabled]="prodName.invalid || prodQty.invalid"
-                  class="btn btn-dark rounded-circle shadow-sm d-flex align-items-center justify-content-center btn-hover-effect btn-add-custom">
-                  <i class="bi bi-plus-lg"></i>
+                  class="btn btn-primary rounded-pill w-100 shadow-sm fw-bold d-flex align-items-center justify-content-center btn-hover-effect"
+                  style="height: 35px;">
+                  <i class="bi bi-plus-lg me-1"></i> Añadir
                 </button>
-                <div style="height: 15px;"></div>
               </div>
+            </div>
           </div>
 
           <!-- Tabla para mostrar los productos agregados al carrito -->
@@ -128,51 +146,47 @@
                 </tr>
               </thead>
 
-              <!|-- Cuerpo de la tabla que itera sobre los productos en el carrito, mostrando su información y un botón
-                para eliminar -->
-                <tbody class="border-top-0">
-                  <tr *ngFor="let item of carrito; let i = index" class="animate__animated animate__fadeIn">
-                    <td class="ps-4 fw-medium text-dark">{{ item.productName }}</td>
-                    <td class="text-center fw-semibold text-secondary">{{ item.unitPrice | currency }}</td>
-                    <td class="text-center fw-bold text-primary">{{ item.quantity }}</td>
-                    <td class="text-end pe-4">
-                      <div class="btn-group shadow-sm rounded-pill overflow-hidden">
+              <!-- Cuerpo de la tabla que itera sobre los productos en el carrito, mostrando su información y un botón para eliminar -->
+              <tbody class="border-top-0">
+                <tr *ngFor="let item of carrito; let i = index" class="animate__animated animate__fadeIn">
+                  <td class="ps-4 fw-medium text-dark">{{ item.productName }}</td>
+                  <td class="text-center fw-semibold text-secondary">{{ item.unitPrice | currency }}</td>
+                  <td class="text-center fw-bold text-primary">{{ item.quantity }}</td>
+                  <td class="text-end pe-4">
+                    <div class="btn-group btn-group-sm shadow-sm rounded-pill overflow-hidden">
+                      <!-- Botones para disminuir la cantidad del producto-->
+                      <button type="button" (click)="cambiarCantidad(i, -1)" class="btn btn-light border-0 px-2">
+                        <i class="bi bi-dash"></i>
+                      </button>
+                      <!-- Botones para aumentar la cantidad del producto-->
+                      <button type="button" (click)="cambiarCantidad(i, 1)"
+                        class="btn btn-light border-0 px-2 text-primary">
+                        <i class="bi bi-plus"></i>
+                      </button>
+                      <!-- Botón para eliminar el producto del carrito -->
+                      <button type="button" (click)="carrito.splice(i, 1)"
+                        class="btn btn-light border-0 px-2 text-danger">
+                        <i class="bi bi-trash3-fill"></i>
+                      </button>
 
-                        <!-- Botones para disminuir la cantidad del producto-->
-                        <button type="button" (click)="cambiarCantidad(i, -1)"
-                          class="btn btn-sm btn-light border-0 px-2 text-secondary">
-                          <i class="bi bi-dash-lg"></i>
-                        </button>
-                        
-                        <!-- Botones para aumentar la cantidad del producto-->
-                        <button type="button" (click)="cambiarCantidad(i, 1)"
-                          class="btn btn-sm btn-light border-0 px-2 text-primary">
-                          <i class="bi bi-plus-lg"></i>
-                        </button>
+                    </div>
+                  </td>
+                </tr>
 
-                        <!-- Botón para eliminar el producto del carrito -->
-                        <button type="button" (click)="carrito.splice(i, 1)"
-                          class="btn btn-sm btn-light border-0 px-2 text-danger">
-                          <i class="bi bi-trash3-fill"></i>
-                        </button>
-
-                      </div>
-                    </td>
-                  </tr>
-                  <!-- Fila que se muestra cuando el carrito está vacío, con un mensaje y un ícono -->
-                  <tr *ngIf="carrito.length === 0">
-                    <td colspan="4" class="text-center py-4">
-                      <i class="bi bi-cart-x d-block fs-2 text-muted mb-2"></i>
-                      <span class="text-muted small">Agrega productos para comenzar la orden</span>
-                    </td>
-                  </tr>
-                </tbody>
+                <!-- Fila que se muestra cuando el carrito está vacío, con un mensaje y un ícono -->
+                <tr *ngIf="carrito.length === 0">
+                  <td colspan="5" class="text-center py-2 bg-white">
+                    <img src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png" width="60"
+                      class="mb-2 opacity-50">
+                    <p class="text-muted small m-0">Tu orden está vacía. Comienza agregando ítems.</p>
+                  </td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
-
         <!--- Pie del modal con botones para descartar o confirmar la orden, mostrando el total de la venta -->
-      <div
+        <div
           class="modal-footer border-0 px-5 pb-4 mt-2 position-relative d-flex align-items-center footer-container-custom">
           <button type="button"
             class="btn btn-light rounded-pill text-decoration-none fw-bold me-auto btn-hover-eff shadow-sm btn-discard-custom"
@@ -180,6 +194,7 @@
             data-bs-dismiss="modal" (click)="limpiarYcerrar()">
             {{ editMode ? 'Cancelar' : 'Descartar' }}
           </button>
+
           <!-- Pie del modal  para la vista del total de la venata -->
           <div class="total-badge-custom input-blocked ">
             <div class="bg-light rounded-4 px-4 py-3 border shadow-sm text-center" style="min-width: 220px;">
@@ -191,6 +206,7 @@
               </h4>
             </div>
           </div>
+
           <!--Botón para confirmar la orden, deshabilitado si el formulario es inválido o si no hay productos en el carrito -->
           <button type="button" (click)="guardarOrden()"
             class="btn rounded-pill px-5 py-2 fw-bold shadow-sm ms-3 btn-confirm-custom btn-hover-eff"
