@@ -262,3 +262,17 @@ button.disabled-logic {
     vertical-align: middle;
   }
 }
+
+// Estilos para el switch de seguridad
+.form-check-input:checked {
+    background-color: #000; 
+    border-color: #000;
+}
+
+// Aplicar un filtro de escala de grises para el estado desactivado del switch
+.form-switch .form-check-input {
+    filter: grayscale(1); 
+    &:checked {
+        filter: none; 
+    }
+}

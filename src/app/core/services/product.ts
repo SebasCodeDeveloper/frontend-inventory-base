@@ -50,14 +50,14 @@ getProducts(): Observable<ProductRs[]> {
   }
 
 /**
-   * Actualiza los datos de un producto existente.
-   * @param id Identificador del recurso a modificar.
-   * @param body Datos actualizados del producto.
+   * Actualiza la información de un producto existente.
+   * @param id Identificador único del producto a actualizar.
+   * @param payload Objeto que contiene los datos a modificar y la contraseña de autenticación.
    */
-  updateProduct(id: string, body: ProductRq): Observable<ProductRs> {
-    return this.http.put<ProductRs>(`${this.API_URL}/${id}`, body, this.httpOptions)
-      .pipe(catchError(this.handleError));
-  }
+updateProduct(id: string, payload: { productRq: ProductRq, auth: { password: string } }): Observable<ProductRs> {
+  return this.http.put<ProductRs>(`${this.API_URL}/${id}`, payload, this.httpOptions)
+    .pipe(catchError(this.handleError));
+}
 
 /**
    * Realiza una búsqueda de productos filtrando por coincidencia en el nombre.
@@ -72,8 +72,8 @@ getProducts(): Observable<ProductRs[]> {
    * Elimina un producto del catálogo permanentemente.
    * @param id Identificador único del producto.
    */
-  deleteProduct(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.API_URL}/${id}`)
+  deleteProduct(id: string, auth: { password: string }): Observable<void> {
+    return this.http.request<void>('DELETE', `${this.API_URL}/${id}`, {...this.httpOptions,body: auth,})
       .pipe(catchError(this.handleError));
   }
 

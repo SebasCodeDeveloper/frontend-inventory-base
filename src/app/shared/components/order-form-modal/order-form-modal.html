@@ -139,20 +139,20 @@
             <table class="table table-hover align-middle m-0">
               <thead class="custom-table-header">
                 <tr class="small text-uppercase text-muted fw-bold" style="font-size: 0.75rem;">
-                  <th class="ps-3 py-2">Producto</th>
+                  <th class="text-center">Producto</th>
                   <th class="text-center">Precio Unit</th>
                   <th class="text-center">Cantidad</th>
-                  <th class="text-end pe-5">Acción</th>
+                  <th class="text-center">Acción</th>
                 </tr>
               </thead>
 
               <!-- Cuerpo de la tabla que itera sobre los productos en el carrito, mostrando su información y un botón para eliminar -->
               <tbody class="border-top-0">
                 <tr *ngFor="let item of carrito; let i = index" class="animate__animated animate__fadeIn">
-                  <td class="ps-4 fw-medium text-dark">{{ item.productName }}</td>
+                  <td class="text-center fw-medium text-dark">{{ item.productName }}</td>
                   <td class="text-center fw-semibold text-secondary">{{ item.unitPrice | currency }}</td>
                   <td class="text-center fw-bold text-primary">{{ item.quantity }}</td>
-                  <td class="text-end pe-4">
+                  <td class="text-center">
                     <div class="btn-group btn-group-sm shadow-sm rounded-pill overflow-hidden">
                       <!-- Botones para disminuir la cantidad del producto-->
                       <button type="button" (click)="cambiarCantidad(i, -1)" class="btn btn-light border-0 px-2">
