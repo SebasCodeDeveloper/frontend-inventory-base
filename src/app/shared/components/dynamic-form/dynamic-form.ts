@@ -155,7 +155,8 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
         this.isLoading = false;
         this.resetFormTotal();
       },
-      error: (err) => this.handleBackendErrors(err),
+      error: (err) => {this.handleBackendErrors(err);
+      },
     });
   }
 
