@@ -10,7 +10,8 @@
 
       <!-- Input de búsqueda por nombre -->
       <div class="input-group input-group-sm shadow-sm" style="width: 250px;">
-        <input type="text" class="form-control rounded-pill px-3" placeholder="Buscar Producto.."
+        <input type="text" class="form-control rounded-pill px-3" autocomplete="one-time-code" readonly onfocus="this.removeAttribute('readonly');"
+         placeholder="Buscar Producto.."
           [(ngModel)]="nameBusqueda" (keyup.enter)="buscarPorProducto()">
       </div>
 
@@ -42,11 +43,28 @@
     <p class="mt-2 text-muted">Consultando base de datos...</p>
   </div>
 
-  <!-- Encabezado visual -->
-  <div *ngIf="!isLoading" class="card mac-table-container shadow-sm border-0">
-    <div class="mac-header d-flex align-items-center pe-3 ps-2">
+<!-- Encabezado visual -->
+<div *ngIf="!isLoading" class="card mac-table-container shadow-sm border-0">
+  <div class="mac-header d-flex align-items-center pe-3 ps-2">
+    
+    <!-- Título a la izquierda -->
+    <div class="d-flex align-items-center">
       <span class="ms-1 small fw-medium text-muted" style="font-size: 0.75rem;">Inventory Database</span>
     </div>
+
+    <!-- Switch de seguridad a la derecha -->
+    <div class="form-check form-switch d-flex align-items-center gap-2 mb-0 ms-auto">
+        <label class="small fw-medium text-muted d-flex align-items-center gap-1" style="font-size: 0.70rem; cursor: pointer;" for="securitySwitch">
+        <i class="bi" [ngClass]="isProtectionEnabled ? 'bi-shield-lock-fill text-primary' : 'bi-shield-slash text-muted'"></i>
+        ADMIN PROTECTION
+      </label>
+      <input class=" align-items-center form-check-input shadow-none ms-0" type="checkbox" role="switch" id="securitySwitch" 
+          [(ngModel)]="isProtectionEnabled" (change)="onSecuritySwitchChange($event) " style="cursor: pointer; width: 2.2em; height: 1.1em;">
+    </div>
+  </div>
+
+  <!-- ... el resto de tu tabla ... -->
+
 
     <!-- Contenedor responsive para la tabla -->
     <div class="table-responsive">
@@ -96,22 +114,26 @@
                   </div>
                 </button>
 
-                <!-- Botón para editar  (abre modal editar orden) -->
-                <button class="btn-cool edit" (click)="editarProducto(prod)" data-bs-toggle="modal"
-                  data-bs-target="#productModal">
-                  <div class="icon-blob">
-                    <i class="bi bi-pencil"></i>
-                  </div>
-                </button>
+                <!-- Bloque de acciones protegidas -->
+                <!--<ng-container *ngIf="isProtectionEnabled"> -->
+                  <!-- Botón para editar  (abre modal editar orden) -->
+                  <button class="btn-cool edit" (click)="editarProducto(prod)" data-bs-toggle="modal"
+                    data-bs-target="#productModal">
+                    <div class="icon-blob">
+                      <i class="bi bi-pencil"></i>
+                    </div>
+                  </button>
 
-                <!-- Botón para eliminar la producto -->
-                <button class="btn-cool delete" [class.disabled-logic]="isProductBlocked(prod)"
-                  [disabled]="isProductBlocked(prod)" (click)="eliminarProducto(prod)"
-                  [title]="isProductBlocked(prod) ? 'No se puede eliminar: Producto con órdenes activas' : 'Eliminar producto'">
-                  <div class="icon-blob">
-                    <i class="bi bi-fire"></i>
-                  </div>
-                </button>
+                  <!-- Botón para eliminar la producto -->
+                  <button class="btn-cool delete" [class.disabled-logic]="isProductBlocked(prod)"
+                    [disabled]="isProductBlocked(prod)" (click)="eliminarProducto(prod)"
+                    [title]="isProductBlocked(prod) ? 'No se puede eliminar: Producto con órdenes activas' : 'Eliminar producto'">
+                    <div class="icon-blob">
+                      <i class="bi bi-fire"></i>
+                    </div>
+                  </button>
+               <!-- </ng-container>-->
+
               </div>
             </td>
           </tr>
@@ -125,7 +147,7 @@
                 <p class="text-muted small mx-auto" style="max-width: 320px;">
                   Tu catálogo está vacío. Comienza agregando nuevos productos para poder generar órdenes de venta.
                 </p>
-                <button class="btn btn-outline-dark btn-sm rounded-pill px-4 mt-2 shadow-sm" data-bs-toggle="modal"
+                <button *ngIf="isProtectionEnabled" class="btn btn-outline-dark btn-sm rounded-pill px-4 mt-2 shadow-sm" data-bs-toggle="modal"
                   data-bs-target="#productModal" (click)="prepararNuevoProducto()">
                   <i class="bi bi-plus-lg me-1"></i> Agregar mi primer producto
                 </button>

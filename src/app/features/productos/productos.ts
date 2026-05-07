@@ -6,7 +6,7 @@ import { NotificationService } from '../../core/services/notification';
 import { DynamicFormComponent } from '../../shared/components/dynamic-form/dynamic-form';
 import { FormsModule, Validators } from '@angular/forms';
 import { PaginationComponent } from '../../shared/components/pagination/pagination';
-
+import { Observable } from 'rxjs';
 /**
  * Componente para la gestión del catálogo de productos.
  * Permite listar, buscar, crear, editar y eliminar productos utilizando un formulario dinámico.
@@ -31,11 +31,20 @@ export class Productos implements OnInit {
   nameBusqueda: string = '';
   //Vista de modal view
   isViewMode: boolean = false;
-
+  // Almacenamiento local de productos para paginación (se mantiene separado de la lista completa)
+  productos: any[] = [];
 
   //Configuración de campos para el formulario dinámico de usuarios
   paginaActual: number = 1;
   itemsPorPagina: number = 5;
+  
+//Estado del switch de seguridad para acciones sensibles
+  isProtectionEnabled: boolean = false;
+  //Estado de validación de contraseña para permitir operaciones protegidas
+  isPasswordValidated: boolean = false;
+  // Almacenamiento temporal de la contraseña maestra para validar operaciones protegidas
+  private masterPasswordTemp: string = '';
+  
 
   /**
    * Configuración de campos para el componente 'app-dynamic-form'.
@@ -86,9 +95,16 @@ export class Productos implements OnInit {
     this.paginaActual = nuevaPagina;
   }
 
+/** * Al iniciar el componente, cargamos el catálogo completo de productos.
+ * También nos suscribimos a la notificación de cancelación para limpiar la sesión administrativa si es necesario.
+ */
   ngOnInit(): void {
     this.cargarProductos();
+    this.notify.cancel$.subscribe(() => {
+      this.limpiarSesionAdmin();
+    });
   }
+
   /**
    * Consulta el catálogo completo de productos.
    */
@@ -97,6 +113,7 @@ export class Productos implements OnInit {
     this.errorMessage = null;
     this.productService.getProducts().subscribe({
       next: (data) => {
+        this.productos = data;
         this.listaProductos = data || [];
         this.isLoading = false;
       },
@@ -112,15 +129,86 @@ export class Productos implements OnInit {
     });
   }
 
-  /**
-   * Función de orden superior que decide si llamar a 'update' o 'create'
-   * según la presencia de un ID. Se pasa como referencia al formulario dinámico.
+/**
+   * Ajustamos la acción para que el DynamicForm le pase los datos, 
+   * y nosotros decidimos cómo enviarlos al Service.
    */
-  saveProductAction = (data: any, id?: string) => {
-    return id
-      ? this.productService.updateProduct(id, data)
-      : this.productService.createProduct(data);
-  };
+saveProductAction = (formData: any, id?: string) => {
+  if (!id) return this.productService.createProduct(formData);
+
+  return new Observable((observer: any) => {
+    const executeUpdate = (password: string) => {
+      const payload = { productRq: formData, auth: { password } };
+      this.productService.updateProduct(id, payload).subscribe({
+        next: (res) => {
+          observer.next(res);
+          observer.complete();
+        },
+        error: (err) => observer.error(err)
+      });
+    };
+
+    if (this.isPasswordValidated) {
+      executeUpdate(this.notify.adminPasswordTemp);
+    } else {
+      this.notify.askPassword((passwordEntered) => {
+        executeUpdate(passwordEntered);
+      });
+    }
+  });
+};
+
+/** * Maneja el cambio del switch de seguridad.
+ * Si se activa, solicita la contraseña maestra para validar al usuario.
+ * Si se desactiva, limpia cualquier estado de sesión relacionado.
+ */
+onSecuritySwitchChange(event: any) {
+  const isChecked = event.target.checked;
+
+  if (isChecked) {
+    this.notify.askPassword((pass) => {
+      const productoPrueba = this.productos && this.productos.length > 0 ? this.productos[0] : null;
+
+      if (!productoPrueba) {
+
+        this.masterPasswordTemp = pass;
+        this.isPasswordValidated = true;
+        this.isProtectionEnabled = true;
+        this.notify.show('success', 'Seguridad', 'Modo Admin activo. Se validará al crear el primer producto.');
+        return;
+      }
+      
+      const payload = {
+        productRq: { name: productoPrueba.name, price: productoPrueba.price, stock: productoPrueba.stock },
+        auth: { password: pass }
+      };
+
+      this.productService.updateProduct(productoPrueba.id, payload).subscribe({
+        next: () => {
+          this.masterPasswordTemp = pass;
+          this.isPasswordValidated = true;
+          this.isProtectionEnabled = true;
+          this.notify.show('success', 'Seguridad', 'Contraseña correcta');
+        },
+        error: (err) => {
+          this.limpiarSesionAdmin(); 
+          this.notify.show('error', 'Seguridad', 'La contraseña de inventario es incorrecta', 'Verifique los datos ingresados');
+        }
+      });
+    });
+  } else {
+    this.limpiarSesionAdmin();
+  }
+}
+
+/** * Limpia el estado de la sesión administrativa.
+ * Se llama al cancelar la acción o al desactivar el switch de seguridad.
+ */
+private limpiarSesionAdmin() {
+  this.masterPasswordTemp = ''; 
+  this.isPasswordValidated = false; 
+  this.isProtectionEnabled = false; 
+}
 
   /**
    * Activa el modo de solo lectura y carga el producto en el formulario.
@@ -217,36 +305,36 @@ export class Productos implements OnInit {
     // Verificamos si tiene historial en el detalle de órdenes
     const tieneVentas = producto.orderDetails && producto.orderDetails.length > 0;
 
-    /**
-     * Lógica Senior: Si detectamos que tiene ventas, disparamos la petición directamente.
-     * Esto permite que el Backend valide si las órdenes están CANCELLED o no,
-     * y nos devuelva el mensaje de error específico definido en el BusinessErrorType.
-     */
-    if (tieneVentas) {
-      this.productService.deleteProduct(producto.id).subscribe({
-        error: (err) => {
-          const backMsg = err.error?.message;
-          this.notify.show('error', 'Product', backMsg, 'Validación de Inventario');
-        },
-      });
-      return;
-    }
-
-    // Si el array de detalles está vacío, procedemos con la confirmación visual normal
-    this.notify.askConfirmation('delete', () => {
-      this.isLoading = true;
-      this.productService.deleteProduct(producto.id).subscribe({
+    const executeDelete = (password: string) => {
+      this.productService.deleteProduct(producto.id, { password }).subscribe({
         next: () => {
           this.cargarProductos();
           this.notify.show('delete', 'Product');
-          this.isLoading = false;
         },
         error: (err) => {
-          this.isLoading = false;
           const backMsg = err.error?.message || 'Error al eliminar producto.';
           this.notify.show('error', 'Product', backMsg, 'No se pudo completar la acción');
         },
       });
+    };
+
+    const askPasswordIfNeeded = (run: (password: string) => void) => {
+      if (this.isPasswordValidated) {
+        run(this.notify.adminPasswordTemp);
+      } else {
+        this.notify.askPassword((passwordEntered) => run(passwordEntered));
+      }
+    };
+
+    // Si detectamos que tiene ventas, ejecutamos directo (el backend valida CANCELLED vs no CANCELLED)
+    if (tieneVentas) {
+      askPasswordIfNeeded(executeDelete);
+      return;
+    }
+
+    // Si el array de detalles está vacío, procedemos con confirmación visual + contraseña
+    this.notify.askConfirmation('delete', () => {
+      askPasswordIfNeeded(executeDelete);
     });
   }
 }

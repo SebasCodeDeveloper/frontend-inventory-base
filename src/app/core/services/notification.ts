@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 declare var bootstrap: any;
 
@@ -16,6 +17,10 @@ export class  NotificationService {
   
   public confirmType: 'delete' | 'cancel' | 'pay' | null = null;
   private pendingAction: (() => void) | null = null;
+  public adminPasswordTemp: string = '';
+
+  private cancelSource = new Subject<void>();
+  cancel$ = this.cancelSource.asObservable();
 
   /**
    * Dispara una notificación visual al usuario.
@@ -81,8 +86,11 @@ export class  NotificationService {
    */
   public executeConfirmation() {
     if (this.pendingAction) {
-      this.pendingAction(); 
-      this.pendingAction = null;       
+  
+      const actionToRun = this.pendingAction;
+      this.pendingAction = null;
+      
+      actionToRun();
       const modalElement = document.getElementById('deleteConfirmModal');
       const modalInstance = bootstrap.Modal.getInstance(modalElement);
       if (modalInstance) modalInstance.hide();
@@ -106,6 +114,47 @@ export class  NotificationService {
     }, 10);
   }
 
+/**   * Solicita al usuario la contraseña maestra para validar acciones sensibles.
+   * @param callback Función que recibe la contraseña ingresada por el usuario.
+   */
+askPassword(callback: (pass: string) => void) {
+  this.pendingAction = () => {
+    callback(this.adminPasswordTemp);
+  };
+  
+  // Código para abrir el modal 'passwordModal' (el que ya tienes)
+  const modalElement = document.getElementById('passwordModal');
+  if (modalElement) {
+    const modalInstance = new bootstrap.Modal(modalElement);
+    modalInstance.show();
+  }
+}
+
+  /**
+   * Ejecuta la acción guardada en 'askPassword' con la contraseña ingresada y cierra el modal.
+   * @param pass Contraseña ingresada por el usuario.
+   */
+public executePasswordConfirmation(pass: string) {
+  this.adminPasswordTemp = pass;
+  if (this.pendingAction) {
+    // Limpia antes de ejecutar para permitir encadenar modales (password -> confirm).
+    const actionToRun = this.pendingAction;
+    this.pendingAction = null;
+    actionToRun();
+
+    const modalElement = document.getElementById('passwordModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+    if (modalInstance) modalInstance.hide();
+    this.cleanupDOM();
+  }
+}
+
+/** * Cancela cualquier acción pendiente de confirmación o validación de contraseña.
+ * También emite un evento para que los componentes puedan reaccionar a la cancelación.
+ */
+  notifyCancel() 
+  { this.cancelSource.next(); }
+  
   /**
    * Limpieza manual del DOM para evitar que el fondo oscuro se quede bloqueado.
    */

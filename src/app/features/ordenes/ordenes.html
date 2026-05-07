@@ -69,8 +69,7 @@
           <tr *ngFor="let order of ordenesPaginadas">
             <!-- Información del propietario (email + ID corto) -->
             <td class="text-center">
-              <div class="fw-semibold text-dark">{{ order.email }}</div>
-              <div class="text-muted small">ID: {{ order.orderId.substring(0,8) }}...</div>
+              <div class="fw-semibold text-dark">{{ order.name }}</div>
             </td>
 
             <!-- Total formateado en moneda COP -->

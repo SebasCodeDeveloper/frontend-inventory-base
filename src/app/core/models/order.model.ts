@@ -18,6 +18,7 @@ export enum OrderStatus {
 export interface OrderReportRs {
   orderId: string;
   email: string;
+  name : string;
   status: OrderStatus;
   total: number;
   createdAt: string;

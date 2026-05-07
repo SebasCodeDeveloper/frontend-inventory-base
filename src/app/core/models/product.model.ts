@@ -40,3 +40,19 @@ export interface ProductRq {
 export interface GetProductByNameRq {
   productName: string;
 }
+
+/**
+ * La estructura de autenticación que espera tu Record en Java
+ */
+export interface AdminAuthRq {
+  password: string;
+}
+
+/**
+ * EL WRAPPER: El sobre final que enviamos al Back
+ * Une el producto con la clave de administrador
+ */
+export interface ProductUpdateWrapper {
+  productRq: ProductRq;
+  auth: AdminAuthRq;
+}

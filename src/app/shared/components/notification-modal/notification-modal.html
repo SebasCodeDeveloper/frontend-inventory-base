@@ -71,7 +71,7 @@
 
                     <!-- Botones para cancelar o confirmar la cancelación de la orden -->
                     <div class="d-flex gap-2 mt-4">
-                        <button type="button" class="btn btn-light w-100 rounded-pill fw-semibold border .btn-mac-Hover"
+                        <button type="button" class="btn btn-light w-100 rounded-pill fw-semibold border btn-mac-Hover"
                             data-bs-dismiss="modal">
                             Volver
                         </button>
@@ -99,6 +99,48 @@
                             (click)="notify.executeConfirmation()">Pagar Ahora</button>
                     </div>
                 </ng-container>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal de confirmación de contraseña para acciones sensibles -->
+<div class="modal fade" id="passwordModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true"
+    (hidden.bs.modal)="passInput.value = ''">
+
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-body p-4 text-center">
+
+                <!-- Icono y Títulos -->
+                <div class="mb-3">
+                    <i class="bi bi-shield-lock-fill text-primary" style="font-size: 3rem;"></i>
+                </div>
+                <h5 class="fw-bold">Área Protegida</h5>
+                <p class="text-muted small">Se requiere clave de administrador para confirmar los cambios.</p>
+
+                <!-- Input de Contraseña con Referencia Local #passInput -->
+                <input type="password" #passInput
+                    class="form-control form-control-lg text-center border-0 shadow-sm mb-3" placeholder="••••"
+                    style="background: #f0f2f5; border-radius: 15px;"
+                    (keyup.enter)="notify.executePasswordConfirmation(passInput.value)" autocomplete="new-password">
+
+                <!-- Botones de Acción -->
+                <div class="d-flex gap-2">
+
+                    <button type="button" class="btn btn-light w-100 rounded-pill fw-semibold border btn-mac-Hover" data-bs-dismiss="modal"
+                        (click)="notify.notifyCancel()">
+                        Cancelar
+                    </button>
+
+                     <!-- El botón de Confirmar ahora pasa el valor del input directamente al método de confirmación -->
+                    <button type="button" class="btn btn-dark w-100 rounded-pill"
+                        (click)="notify.executePasswordConfirmation(passInput.value)" data-bs-dismiss="modal">
+                        Confirmar
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
