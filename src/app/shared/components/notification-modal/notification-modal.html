@@ -29,13 +29,14 @@
     </div>
 </div>
 
-<!-- Modal de confirmación de eliminación -->
+
 <div class="modal fade" id="deleteConfirmModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg"
             style="border-radius: 24px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px);">
             <div class="modal-body p-4 text-center" *ngIf="notify.confirmType">
 
+                <!-- Modal de confirmación de eliminación -->
                 <ng-container *ngIf="notify.confirmType === 'delete'">
                     <div class="mb-3">
                         <i class="bi bi-exclamation-circle-fill text-danger" style="font-size: 3.5rem;"></i>
@@ -47,7 +48,7 @@
 
                     <div class="d-flex gap-2 mt-4">
                         <!-- Boton para cancelar la eminacion  -->
-                        <button type="button"class="btn btn-light w-100 rounded-pill fw-semibold border btn-mac-Hover"
+                        <button type="button" class="btn btn-light w-100 rounded-pill fw-semibold border btn-mac-Hover"
                             data-bs-dismiss="modal">
                             Cancelar
                         </button>
@@ -59,7 +60,7 @@
                     </div>
                 </ng-container>
 
-                <!-- Vista de texto  para cancelar orden -->
+                <!-- Modal de confirmación para cancelar orden -->
                 <ng-container *ngIf="notify.confirmType === 'cancel'">
                     <div class="mb-3">
                         <i class="bi bi-x-circle-fill" style="font-size: 3.5rem; color: #7239db;"></i>
@@ -69,7 +70,7 @@
                     <h4 class="fw-bold text-dark">¿Cancelar Orden?</h4>
                     <p class="text-muted small">La orden se marcará como cancelada y no podrá ser procesada.</p>
 
-                    <!-- Botones para cancelar o confirmar la cancelación de la orden -->
+                    <!-- Boton para dejar la orden en estado natural -->
                     <div class="d-flex gap-2 mt-4">
                         <button type="button" class="btn btn-light w-100 rounded-pill fw-semibold border btn-mac-Hover"
                             data-bs-dismiss="modal">
@@ -84,6 +85,32 @@
                     </div>
                 </ng-container>
 
+                <!-- Modal de confirmación para actualizar estado de orden -->
+                <ng-container *ngIf="notify.confirmType === 'update'">
+                    <div class="mb-3">
+                        <i class="bi bi-arrow-repeat text-primary" style="font-size: 3.5rem;"></i>
+                    </div>
+                    
+                    <!-- Vista de texto  para actualizar la orden -->
+                    <h4 class="fw-bold text-dark">¿Actualizar estado?</h4>
+                    <p class="text-muted small">Se aplicará el nuevo estado a la orden y se notificará al sistema.</p>
+                 
+                    <!-- Boton para cancelar la actualización de la orden -->
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="button" class="btn btn-light w-100 rounded-pill fw-semibold border btn-mac-Hover"
+                            data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+
+                          <!-- Boton para confirmar la actualicación de la orden -->
+                        <button type="button" class="btn btn-dark w-100 rounded-pill fw-semibold shadow-sm btn-mac-update"
+                            (click)="notify.executeConfirmation()">
+                            Actualizar
+                        </button>
+                    </div>
+                </ng-container>
+
+                <!-- Modal de confirmación para procesar pago de orden -->
                 <ng-container *ngIf="notify.confirmType === 'pay'">
                     <i class="bi bi-check-circle-fill text-success" style="font-size: 3.5rem;"></i>
                     <h4 class="fw-bold mt-3">¿Procesar Pago?</h4>
@@ -106,8 +133,8 @@
 
 
 <!-- Modal de confirmación de contraseña para acciones sensibles -->
-<div class="modal fade" id="passwordModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true"
-    (hidden.bs.modal)="passInput.value = ''">
+<div class="modal fade" id="passwordModal" data-bs-backdrop="static" tabindex="-1"
+    (hidden.bs.modal)="onPasswordModalHidden(); passInput.value = ''">
 
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
@@ -129,12 +156,12 @@
                 <!-- Botones de Acción -->
                 <div class="d-flex gap-2">
 
-                    <button type="button" class="btn btn-light w-100 rounded-pill fw-semibold border btn-mac-Hover" data-bs-dismiss="modal"
-                        (click)="notify.notifyCancel()">
+                    <button type="button" class="btn btn-light w-100 rounded-pill fw-semibold border btn-mac-Hover"
+                        data-bs-dismiss="modal" (click)="notify.notifyCancel()">
                         Cancelar
                     </button>
 
-                     <!-- El botón de Confirmar ahora pasa el valor del input directamente al método de confirmación -->
+                    <!-- El botón de Confirmar ahora pasa el valor del input directamente al método de confirmación -->
                     <button type="button" class="btn btn-dark w-100 rounded-pill"
                         (click)="notify.executePasswordConfirmation(passInput.value)" data-bs-dismiss="modal">
                         Confirmar

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { GetProductByNameRq, ProductRs } from '../../core/models/product.model';
 import { ProductService } from '../../core/services/product';
 import { NotificationService } from '../../core/services/notification';
@@ -7,6 +7,9 @@ import { DynamicFormComponent } from '../../shared/components/dynamic-form/dynam
 import { FormsModule, Validators } from '@angular/forms';
 import { PaginationComponent } from '../../shared/components/pagination/pagination';
 import { Observable } from 'rxjs';
+
+declare var bootstrap: any;
+
 /**
  * Componente para la gestión del catálogo de productos.
  * Permite listar, buscar, crear, editar y eliminar productos utilizando un formulario dinámico.
@@ -138,25 +141,43 @@ saveProductAction = (formData: any, id?: string) => {
 
   return new Observable((observer: any) => {
     const executeUpdate = (password: string) => {
+      this.notify.lastModalId = null; 
+      this.notify.isValidating = false; 
+
       const payload = { productRq: formData, auth: { password } };
       this.productService.updateProduct(id, payload).subscribe({
         next: (res) => {
           observer.next(res);
           observer.complete();
         },
-        error: (err) => observer.error(err)
+        error: (err) => {
+          this.notify.isValidating = false;
+          observer.error(err);
+        }
       });
     };
 
     if (this.isPasswordValidated) {
       executeUpdate(this.notify.adminPasswordTemp);
     } else {
+      this.notify.isValidating = true;
+      this.notify.lastModalId = 'productModal'; 
+      this.cerrarModalProducto();
+
       this.notify.askPassword((passwordEntered) => {
         executeUpdate(passwordEntered);
       });
     }
   });
-};
+}
+private cerrarModalProducto(): void {
+  const modalElement = document.getElementById('productModal'); 
+  if (modalElement) {
+    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+    modalInstance.hide();
+  }
+}
+
 
 /** * Maneja el cambio del switch de seguridad.
  * Si se activa, solicita la contraseña maestra para validar al usuario.

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { OrderReportRs, GetOrderByEmailRq } from '../../core/models/order.model';
+import { OrderReportRs, GetOrderByEmailRq, OrderStatus } from '../../core/models/order.model';
 import { NotificationService } from '../../core/services/notification';
 import { OrderService } from '../../core/services/order';
 import { OrderDetailModalComponent } from '../../shared/components/order-detail-modal/order-detail-modal';
@@ -18,7 +18,13 @@ declare var bootstrap: any;
 @Component({
   selector: 'app-ordenes',
   standalone: true,
-  imports: [CommonModule, FormsModule, OrderDetailModalComponent, OrderFormModalComponent, PaginationComponent,],
+  imports: [
+    CommonModule,
+    FormsModule,
+    OrderDetailModalComponent,
+    OrderFormModalComponent,
+    PaginationComponent,
+  ],
   templateUrl: './ordenes.html',
   styleUrl: './ordenes.scss',
 })
@@ -39,7 +45,11 @@ export class Ordenes implements OnInit {
 
   //Configuración de campos para el formulario dinámico de usuarios
   paginaActual: number = 1;
-  itemsPorPagina: number = 5;
+  itemsPorPagina: number = 6;
+
+  // Lista de estados disponibles para el dropdown, se usa en el template para generar opciones dinámicamente
+  public readonly estadosDisponibles = ['CREATED', 'IN_PROGRESS', 'FINISHED', 'PAID', 'CANCELLED'];
+  estadoHover: string | null = null;
 
   constructor(
     private orderService: OrderService,
@@ -91,27 +101,47 @@ export class Ordenes implements OnInit {
   }
 
   /**
-   * Realiza una búsqueda filtrada. Si el campo está vacío, restaura la lista completa.
+   * Filtra la lista de ordenes  por correo electrónico, numero o nombre.
+   * Si el campo está vacío, restaura el listado original.
    */
-  buscarPorEmail(): void {
-    this.paginaActual = 1;
-    if (!this.emailBusqueda.trim()) {
-      this.cargarOrdenes();
-      return;
-    }
-    const request: GetOrderByEmailRq = { email: this.emailBusqueda.trim() };
-    this.isLoading = true;
-    this.orderService.getOrdersByEmail(request).subscribe({
-      next: (data) => {
-        this.listaOrdenes = data;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.notify.show('error', 'Orden', err.error?.message, 'Verificarlos datos ingresados.');
-        this.isLoading = false;
-      },
-    });
+buscarOrdenes(): void {
+  this.paginaActual = 1;
+  
+  const valorBusqueda = this.emailBusqueda.trim();
+
+  if (!valorBusqueda) {
+    this.cargarOrdenes();
+    return;
   }
+
+  const request = {} as GetOrderByEmailRq;
+
+  if (valorBusqueda.includes('@')) {
+    request.email = valorBusqueda;
+  } else if (/^\d+$/.test(valorBusqueda)) {
+    request.numero = valorBusqueda;
+  } else {
+    request.name = valorBusqueda;
+  }
+
+  this.isLoading = true;
+
+  this.orderService.getOrdersByCriteria(request).subscribe({
+    next: (data) => {
+      this.listaOrdenes = data;
+      this.isLoading = false;
+    },
+    error: (err) => {
+      this.notify.show(
+        'error', 
+        'Orden', 
+        err.error?.message || 'Error al realizar la búsqueda', 
+        'Verificar los datos ingresados.'
+      );
+      this.isLoading = false;
+    },
+  });
+}
 
   /**
    * Procesa la eliminación de una orden previa confirmación del usuario.
@@ -164,7 +194,7 @@ export class Ordenes implements OnInit {
       modalInstance.show();
     }
   }
-  
+
   /**
    * Abre el modal de detalle asegurando limpieza previa de instancias.
    */
@@ -208,7 +238,96 @@ export class Ordenes implements OnInit {
       },
     });
   }
-  
+
+  /**
+   * Maneja el cambio de estado desde el dropdown en la tabla.
+   * Contiene lógica para estados con flujos especiales (Pago/Cancelación).
+   * Para otros cambios, solicita confirmación antes de aplicar el cambio.
+   */
+  cambiarEstado(order: OrderReportRs, event: any): void {
+    const nuevoEstado = event.target.value;
+    if (nuevoEstado === order.status) return;
+
+    // Casos de Pago y Cancelación se mantienen con su propio flujo
+    if (nuevoEstado === 'PAID') {
+      this.ordenSeleccionada = order;
+      this.pagar();
+      return;
+    }
+    if (nuevoEstado === 'CANCELLED') {
+      this.ordenSeleccionada = order;
+      this.cancelar();
+      return;
+    }
+
+    this.notify.askConfirmation('update', () => {
+      this.orderService.updateOrderStatus(order.orderId, nuevoEstado).subscribe({
+        next: () => {
+          order.status = nuevoEstado;
+          const index = this.listaOrdenes.findIndex((o) => o.orderId === order.orderId);
+          if (index !== -1) {
+            this.listaOrdenes[index] = { ...order };
+          }
+
+          if (nuevoEstado === 'FINISHED') {
+            this.notify.show('success', 'Success', `Orden completado con éxito.`);
+          } else {
+            this.notify.show(
+              'update',
+              'Orden Actualizada',
+              `El estado ha cambiado correctamente a ${nuevoEstado}.`,
+              'Cambio aplicado',
+            );
+          }
+        },
+        error: (err) => {
+          this.cargarOrdenes();
+          this.notify.show('error', 'Seguridad', err.error?.message);
+        },
+      });
+    });
+  }
+
+  /**
+   * Procesa la transacción de pago de la orden actual.
+   * Cambia el estado de la orden en el backend y notifica el resultado.
+   */
+  pagar(): void {
+    if (!this.ordenSeleccionada) return;
+
+    this.notify.askConfirmation('pay', () => {
+      this.orderService.pagarOrden(this.ordenSeleccionada!.orderId).subscribe({
+        next: () => {
+          this.ordenSeleccionada!.status = OrderStatus.PAID;
+          this.notify.show('success', 'Orden Pagada', 'La transacción se completó con éxito');
+        },
+        error: (err) => {
+          this.notify.show('error', 'Error', err.error?.message);
+        },
+      });
+    });
+  }
+
+  /**
+   * Ejecuta el flujo de cancelación de una orden.
+   * Solicita confirmación al usuario antes de proceder con la reversión en el servidor.
+   */
+  cancelar(): void {
+    if (!this.ordenSeleccionada) return;
+
+    this.notify.askConfirmation('cancel', () => {
+      this.orderService.cancelarOrden(this.ordenSeleccionada!.orderId).subscribe({
+        next: () => {
+          this.ordenSeleccionada!.status = OrderStatus.CANCELLED;
+          this.notify.show('success', 'Orden Cancelada', 'La orden ha sido anulada correctamente');
+        },
+        error: (err) => {
+          this.notify.show('error', 'Error', err.error?.message);
+        },
+      });
+    });
+  }
+
   /**
    * Genera dinámicamente el estilo CSS (Glassmorphism) para los badges de estado.
    * @param status Estado de la orden (PAID, CREATED, CANCELLED).
@@ -216,13 +335,17 @@ export class Ordenes implements OnInit {
   getStatusStyles(status: string) {
     switch (status) {
       case 'PAID':
-        return { background: 'rgba(39, 201, 63, 0.15)', color: '#1aab29' };
+        return { background: 'rgba(39, 201, 63, 0.23)', color: '#059c14' };
       case 'CREATED':
-        return { background: 'rgba(0, 122, 255, 0.15)', color: '#007aff' };
+        return { background: 'rgba(0, 123, 255, 0.23)', color: '#007bff' };
+      case 'IN_PROGRESS':
+        return { background: 'rgba(255, 149, 0, 0.23)', color: '#ff9500' };
+      case 'FINISHED':
+        return { background: 'rgba(175, 82, 222, 0.23)', color: '#aa00ff' };
       case 'CANCELLED':
-        return { background: 'rgba(255, 59, 48, 0.15)', color: '#ff3b30' };
+        return { background: 'rgba(255, 58, 48, 0.23)', color: '#ff0d00' };
       default:
-        return { background: 'rgba(142, 142, 147, 0.15)', color: '#8e8e93' };
+        return { background: 'rgba(142, 142, 147, 0.23)', color: '#8e8e93' };
     }
   }
 }

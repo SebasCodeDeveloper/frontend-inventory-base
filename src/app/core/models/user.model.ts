@@ -17,5 +17,7 @@ export interface User {
  * Coincide con el objeto 'Record' o DTO que espera el endpoint /email en el Backend.
  */
 export interface GetUserByEmailRq {
-  email: string;
+  email?: string;
+  name?: string;
+  numero?: string;
 }

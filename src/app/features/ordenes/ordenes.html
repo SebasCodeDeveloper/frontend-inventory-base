@@ -10,8 +10,8 @@
 
       <!-- Input de búsqueda por email -->
       <div class="input-group input-group-sm shadow-sm" style="width: 250px;">
-        <input type="text" class="form-control  rounded-pill px-3" placeholder="Buscar email..."
-          [(ngModel)]="emailBusqueda" (keyup.enter)="buscarPorEmail()">
+        <input type="text" class="form-control  rounded-pill px-3" placeholder="Buscar orden..."
+          [(ngModel)]="emailBusqueda" (keyup.enter)="buscarOrdenes()">
       </div>
 
       <!-- Botón para recargar todas las órdenes -->
@@ -75,11 +75,32 @@
             <!-- Total formateado en moneda COP -->
             <td class="text-center fw-bold text-dark"> {{ order.total | currency: 'COP ': 'code'}}</td>
 
-            <!-- Estado con estilos dinámicos -->
+            <!-- Botón de estado con dropdown para cambiar estado -->
             <td class="text-center">
-              <span class="badge rounded-pill px-3" [ngStyle]="getStatusStyles(order.status)">
-                {{ order.status }}
-              </span>
+              <div class="dropdown mac-dropdown-container">
+                <button class="btn mac-drop-btn dropdown-toggle w-100" type="button" data-bs-toggle="dropdown"
+                  [ngStyle]="{ 'background-color': getStatusStyles(order.status).background,
+                                      'color': getStatusStyles(order.status).color,
+                                      'cursor': (order.status === 'PAID' || order.status === 'CANCELLED') ? 'not-allowed' : 'pointer',
+                                      'pointer-events': (order.status === 'PAID' || order.status === 'CANCELLED') ? 'auto' : 'auto'
+                  }"                  [class.disabled]="order.status === 'PAID' || order.status === 'CANCELLED'"
+                  [attr.aria-disabled]="order.status === 'PAID' || order.status === 'CANCELLED'"
+                  [attr.title]="(order.status === 'PAID' || order.status === 'CANCELLED') ? 'Esta orden ya no se puede modificar' : 'Cambiar estado'">
+                  {{ order.status }}
+                </button>
+
+                <ul class="dropdown-menu mac-menu-list w-100"
+                  *ngIf="order.status !== 'PAID' && order.status !== 'CANCELLED'">
+                  <li *ngFor="let est of estadosDisponibles">
+                    <button class="dropdown-item mac-item" type="button"
+                      (click)="cambiarEstado(order, {target: {value: est}})"
+                      [style.--hover-color]="getStatusStyles(est).color">
+                      <span class="dot" [style.background]="getStatusStyles(est).color"></span>
+                      {{ est }}
+                    </button>
+                  </li>
+                </ul>
+              </div>
             </td>
 
             <!-- Acciones disponibles para cada orden -->
@@ -136,8 +157,7 @@
 </div>
 
 <!-- Modal de detalle de orden -->
-<app-order-detail-modal [orden]="ordenSeleccionada" (editRequested)="abrirEdicion($event)"
-  (actionCompleted)="cargarOrdenes()">
+<app-order-detail-modal [orden]="ordenSeleccionada" (verDetalle)="verDetalle($event)">
 </app-order-detail-modal>
 
 <!-- Modal de formulario para creación y edición de órdenes con eventos de calida y guardado -->

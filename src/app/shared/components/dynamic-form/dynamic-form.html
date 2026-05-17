@@ -49,7 +49,7 @@
         <i class="bi bi-info-circle-fill"></i> El número debe iniciar con 3.
       </div>
 
-      <span *ngIf="form.get(field.name)?.errors?.['email']"> Formato de correo inválido.
+      <span *ngIf="form.get(field.name)?.errors?.['email']"><i class="bi bi-info-circle-fill"></i> Formato de correo inválido.
       </span>
 
       <span *ngIf="form.get(field.name)?.errors?.['min']">

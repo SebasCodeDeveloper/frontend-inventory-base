@@ -9,6 +9,7 @@ export enum OrderStatus {
   PAID = 'PAID',
   CANCELLED = 'CANCELLED',
   IN_PROGRESS = 'IN_PROGRESS',
+  FINISHED = 'FINISHED',
 }
 
 /**
@@ -19,6 +20,7 @@ export interface OrderReportRs {
   orderId: string;
   email: string;
   name : string;
+  numero: string;
   status: OrderStatus;
   total: number;
   createdAt: string;
@@ -39,5 +41,7 @@ export interface OrderRq {
  *  Se utiliza en el  buscador de historial de pedidos
  */
 export interface GetOrderByEmailRq {
-  email: string;
+  email?: string;
+  name?: string;
+  numero?: string;
 }
