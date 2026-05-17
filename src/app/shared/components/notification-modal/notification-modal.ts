@@ -2,6 +2,8 @@ import { Component} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../../core/services/notification';
 
+declare var bootstrap: any;
+
 /**
  * Componete de  notificaciones globales:
  * Actúa como el contenedor visual (Modal/Toast) para todas las alertas del sistema.
@@ -23,4 +25,15 @@ export class NotificationModalComponent {
    * - notify.message: El texto principal de la notificación.
    */
   constructor(public notify: NotificationService) {}
+  
+onPasswordModalHidden() {
+  if (this.notify.lastModalId) {
+    const modalElement = document.getElementById(this.notify.lastModalId);
+    if (modalElement) {
+      const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+      modalInstance.show();
+    }
+    this.notify.lastModalId = null; 
+  }
+}
 }

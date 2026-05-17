@@ -111,7 +111,7 @@
     }
   }
 
-// detalle color azul intenso
+  // detalle color azul intenso
   &.detail .icon-blob {
     color: #0368ff; 
     background: rgba(0, 77, 192, 0.2); 
@@ -119,10 +119,10 @@
     border: 2px solid rgba(0, 77, 192, 0.4); 
   }
 
-// editar orden (Ámbar/Naranja)
+  // editar orden (Ámbar/Naranja)
   &.edit .icon-blob {
-    color: #ff9500; 
-    background: rgba(255, 149, 0, 0.2); 
+    color: #ff9500;
+    background: rgba(255, 149, 0, 0.2);
     box-shadow: 0 4px 10px rgba(255, 149, 0, 0.15);
     border: 2px solid rgba(255, 149, 0, 0.4);
   }
@@ -149,7 +149,7 @@
       border-color: #003a91;
     }
 
-&.edit .icon-blob {
+    &.edit .icon-blob {
       background: #ff9500;
       color: white;
       box-shadow: 0 8px 20px rgba(255, 149, 0, 0.5);
@@ -243,3 +243,86 @@
     vertical-align: middle;
   }
 }
+
+// Estilos para el dropdown de cambio de estado, con un diseño tipo MacOS moderno y elegante
+.mac-menu-list {
+  min-width: 128px !important; // Mismo ancho que el botón
+  max-width: 128px !important;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.98); // Fondo más sólido para que el color resalte
+  backdrop-filter: blur(15px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+// Estilos para cada opción del dropdown, con un diseño tipo MacOS moderno y elegante
+.mac-item {
+  border-radius: 15px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  width: 113px !important;
+
+  &:hover {
+    background-color: var(--hover-color) !important;
+    color: white !important;
+    transform: translateX(4px);
+
+    .dot {
+      background-color: white !important;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+  }
+}
+
+// Estilos para el punto de color que indica el estado, con un diseño tipo MacOS moderno y elegante
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 10px;
+  display: inline-block;
+}
+
+// Estilos para el botón del dropdown, con un diseño tipo MacOS moderno y elegante
+.mac-drop-btn {
+  border-radius: 20px;
+  font-weight: 800 !important; 
+  font-size: 0.65rem;
+  border: none;
+  width: 120px !important;
+  padding: 6.5px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), rgba(0, 0, 0, 0.05));
+
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+    box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+    filter: brightness(0.9);
+  }
+}
+
+/* Estilo para las opciones del dropdown para que no se vean grises */
+.mac-item {
+  &:hover {
+    background-color: var(--hover-color) !important;
+    color: rgb(0, 0, 0) !important;
+    font-weight: 700;
+  }
+}
+
+

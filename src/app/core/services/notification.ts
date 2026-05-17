@@ -15,7 +15,10 @@ export class  NotificationService {
   public modalMessage = ''; 
   public modalIcon = '';
   
-  public confirmType: 'delete' | 'cancel' | 'pay' | null = null;
+  public lastModalId: string | null = null;
+  public isValidating: boolean = false;
+
+  public confirmType: 'delete' | 'cancel' | 'pay' | 'update' | null = null;
   private pendingAction: (() => void) | null = null;
   public adminPasswordTemp: string = '';
 
@@ -40,7 +43,7 @@ export class  NotificationService {
       create: { title: 'Created', msg: `New ${entityName.charAt(0).toUpperCase() + entityName.slice(1).toLowerCase()} Successfully.`, icon: 'bi bi-check-all text-success' },
       update: { title: 'Updated', msg: `${entityName.charAt(0).toUpperCase() + entityName.slice(1).toLowerCase()} Updated Successfully. `, icon: 'bi bi-pencil-square text-primary' },
       delete: { title: 'Deleted', msg: `${entityName.charAt(0).toUpperCase() + entityName.slice(1).toLowerCase()} Deleted Successfully.`, icon: 'bi bi-trash3-fill text-danger' },
-      error: { title: 'Error de conexión', msg: 'The operation could not be completed.', icon: 'bi bi-exclamation-octagon-fill text-warning' },
+      error: { title: 'Error de conexión', msg: 'Please check the data', icon: 'bi bi-exclamation-octagon-fill text-warning' },
     };
 
     const config = configs[action];
@@ -69,7 +72,7 @@ export class  NotificationService {
    * Abre un diálogo de confirmación antes de realizar una acción destructiva.
    * @param callback Función que se ejecutará si el usuario confirma.
    */
-  askConfirmation(type: 'delete' | 'cancel' | 'pay', callback: () => void) {
+  askConfirmation(type: 'delete' | 'cancel' | 'pay' | 'update', callback: () => void) {
     this.confirmType = type;
     this.pendingAction = callback;
     
