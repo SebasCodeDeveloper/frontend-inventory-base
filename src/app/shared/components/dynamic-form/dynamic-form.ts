@@ -2,6 +2,7 @@ import { Component, EventEmitter, OnDestroy, Output, Input, AfterViewInit } from
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
+import { NotificationService } from '../../../core/services/notification';
 
 /**
  * COMPONENTE NÚCLEO: Formulario Dinámico Universal.
@@ -85,7 +86,9 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
    * Construye los controles del Reactive Form basándose 
    * en la configuración recibida en el Input 'fields'.
    */
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, 
+    public notify: NotificationService) {
+    
     this.form = this.fb.group({});
   }
 
@@ -133,15 +136,17 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
   /**
    * Lógica interna para dejar el componente en su estado inicial (sin errores ni IDs).
    */
-  private ejecutarLimpiezaSilenciosa(): void {
-    this.form.reset();
-    this.form.enable(); 
-    this.backendErrors = [];
-    this.id = null;
-    this.isEditMode = false;
-    this.onCancel.emit();
-  }
+private ejecutarLimpiezaSilenciosa(): void {
+  // SI estamos validando, NO limpies nada, porque vamos a volver
+  if (this.notify.isValidating) return; 
 
+  this.form.reset();
+  this.form.enable(); 
+  this.backendErrors = [];
+  this.id = null;
+  this.isEditMode = false;
+  this.onCancel.emit();
+}
   /**
    * Envío de Formulario: Valida, limpia errores previos y ejecuta la 'saveAction'.
    * Maneja el éxito cerrando el modal y el error procesando la respuesta de la API.

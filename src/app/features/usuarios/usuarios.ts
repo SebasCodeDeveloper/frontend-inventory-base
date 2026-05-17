@@ -174,29 +174,47 @@ onUserOperationSuccess() {
 }
 
   /**
-   * Filtra la lista de usuarios por correo electrónico.
+   * Filtra la lista de usuarios por correo electrónico, numero o nombre.
    * Si el campo está vacío, restaura el listado original.
    */
- buscarPorEmail(): void {
-        this.paginaActual = 1;
-      if (!this.emailBusqueda.trim()) {
-        this.cargarUsuarios();
-        return;
-      }
-      const request: GetUserByEmailRq = { email: this.emailBusqueda.trim() };
-      this.isLoading = true;
-      this.userService.getByEmail(request).subscribe({
-        next: (data) => {
-          this.listaUsuarios = data;
-          this.isLoading = false;
-        },
-        error: (err) => {
-          this.notify.show('error', 'User', err.error?.message, 'Verifique los datos ingresados');
-          console.log(this.notify)
-          this.isLoading = false;
-        },
-      });
-    }
+buscarUsuarios(): void {
+  this.paginaActual = 1;
+  
+  const valorBusqueda = this.emailBusqueda.trim();
+
+  if (!valorBusqueda) {
+    this.cargarUsuarios();
+    return;
+  }
+
+  const request = {} as GetUserByEmailRq;
+
+  if (valorBusqueda.includes('@')) {
+    request.email = valorBusqueda;
+  } else if (/^\d+$/.test(valorBusqueda)) {
+    request.numero = valorBusqueda;
+  } else {
+    request.name = valorBusqueda;
+  }
+
+  this.isLoading = true;
+
+  this.userService.searchUsers(request).subscribe({
+    next: (data) => {
+      this.listaUsuarios = data;
+      this.isLoading = false;
+    },
+    error: (err) => {
+      this.notify.show(
+        'error', 
+        'Usuario', 
+        err.error?.message || 'Error al realizar la búsqueda de usuarios', 
+        'Verifique los datos ingresados'
+      );
+      this.isLoading = false;
+    },
+  });
+}
 
  /**
  * Gestiona la eliminación de un usuario.

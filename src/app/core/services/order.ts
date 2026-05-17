@@ -42,8 +42,8 @@ export class OrderService {
    * @param body Objeto que contiene el email del cliente.
    * @returns Observable con las órdenes encontradas.
    */
-getOrdersByEmail(body: GetOrderByEmailRq): Observable<OrderReportRs[]> {
-  return this.http.post<OrderReportRs[]>(this.URL_DETAILS, body, this.httpOptions)
+getOrdersByCriteria(body: GetOrderByEmailRq): Observable<OrderReportRs[]> {
+  return this.http.post<OrderReportRs[]>(`${this.URL_ORDERS}/search`, body, this.httpOptions)
     .pipe(catchError(this.handleError));
 }
 
@@ -79,12 +79,24 @@ getOrdersByEmail(body: GetOrderByEmailRq): Observable<OrderReportRs[]> {
         .pipe(catchError(this.handleError));
     }
   
+    /**
+ * Actualiza el estado de una orden de manera dinámica.
+ * @param id Identificador único de la orden (UUID).
+ * @param status El nuevo estado (OrderStatus) a asignar.
+ * @returns Observable con la orden actualizada.
+ */
+updateOrderStatus(id: string, status: string): Observable<OrderReportRs> {
+  const url = `${this.URL_ORDERS}/${id}/status?status=${status}`;
+  return this.http.patch<OrderReportRs>(url, {}, this.httpOptions)
+    .pipe(catchError(this.handleError));
+}
+
 /**
    * Cambia el estado de una orden a 'PAID'.
    * @param id Identificador de la orden a procesar.
    */
   pagarOrden(id: string): Observable<OrderReportRs> {
-    return this.http.put<OrderReportRs>(`${this.URL_ORDERS}/${id}/pay`, {})
+    return this.http.put<OrderReportRs>(`${this.URL_ORDERS}/${id}/pay`, {}, this.httpOptions)
       .pipe(catchError(this.handleError));
   }
 
@@ -93,7 +105,7 @@ getOrdersByEmail(body: GetOrderByEmailRq): Observable<OrderReportRs[]> {
    * @param id Identificador de la orden a anular.
    */
   cancelarOrden(id: string): Observable<OrderReportRs> {
-    return this.http.put<OrderReportRs>(`${this.URL_ORDERS}/${id}/cancel`, {})
+    return this.http.put<OrderReportRs>(`${this.URL_ORDERS}/${id}/cancel`, {}, this.httpOptions)
       .pipe(catchError(this.handleError));
   }
 
@@ -102,7 +114,7 @@ getOrdersByEmail(body: GetOrderByEmailRq): Observable<OrderReportRs[]> {
    * @param id Identificador de la orden a remover.
    */
   eliminarOrden(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.URL_ORDERS}/${id}`)
+    return this.http.delete<void>(`${this.URL_ORDERS}/${id}`, this.httpOptions)
       .pipe(catchError(this.handleError));
   }
 

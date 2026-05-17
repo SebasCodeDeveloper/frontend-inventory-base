@@ -62,8 +62,8 @@ export class UserService {
    * Realiza una búsqueda filtrada por correo electrónico.
    * @param request Objeto que contiene el email del usuario.
    */
-  getByEmail(request: GetUserByEmailRq): Observable<User[]> {
-    return this.http.post<User[]>(`${this.API_URL}/email`, request)
+  searchUsers(request: GetUserByEmailRq): Observable<User[]> {
+    return this.http.post<User[]>(`${this.API_URL}/search`, request)
       .pipe(catchError(this.handleError));
   }
 
