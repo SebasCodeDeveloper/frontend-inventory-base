@@ -36,7 +36,11 @@
                     </span>
 
                     <input type="email" [(ngModel)]="email" name="email" #userEmail="ngModel" required email
-                      class="form-control border-0 shadow-none bg-transparent" placeholder="ejemplo@correo.com">
+                      class="form-control border-0 shadow-none bg-transparent" placeholder="ejemplo@correo.com" list="usuariosAutocomplete">
+
+                    <datalist id="usuariosAutocomplete">
+                      <option *ngFor="let correo of listaCorreos" [value]="correo"></option>
+                    </datalist>
 
                     <!-- Icono de error y mensaje de validación para el correo electrónico -->
                     <span class="input-group-text bg-transparent border-0 text-danger"
@@ -54,7 +58,7 @@
                   <label class="small fw-bold text-primary mb-2 d-block px-2">
                     <i class="bi bi-tools me-1"></i> DETALLES DEL TRABAJO
                   </label>
-                  <div class="row g-2">
+                  <div class="row g-2 align-items-center">
                     <div class="col-7">
                       <input type="text" name="tipoTrabajo" class="form-control rounded-pill border-1 shadow-sm px-3"
                         style="height: 40px; font-size: 0.85rem;" placeholder="Tipo de Trabajo">
@@ -90,6 +94,10 @@
                     (ngModelChange)="buscarPrecio()" name="productName" required
                     class="form-control border-0 shadow-none bg-transparent" placeholder="Escribir producto..."
                     list="listaProductos">
+
+                  <datalist id="listaProductos">
+                    <option *ngFor="let prod of productosCatalogo" [value]="prod.name"></option>
+                  </datalist>
 
                   <span class="input-group-text bg-transparent border-0 text-danger"
                     *ngIf="prodName.invalid && (prodName.dirty || prodName.touched)">
@@ -178,7 +186,7 @@
                   <td colspan="5" class="text-center py-2 bg-white">
                     <img src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png" width="60"
                       class="mb-2 opacity-50">
-                    <p class="text-muted small m-0">Tu orden está vacía. Comienza agregando ítems.</p>
+                    <p class="text-muted small m-0">Tu orden está vacía. Comienza agregando ítems o servicios.</p>
                   </td>
                 </tr>
               </tbody>
