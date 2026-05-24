@@ -19,7 +19,7 @@
                     'bg-primary-subtle text-primary': orden.status === 'CREATED', 
                     'bg-danger-subtle text-danger': orden.status === 'CANCELLED',
                     'bg-warning-subtle text-warning': orden.status === 'IN_PROGRESS',
-                    'bg-morado-suave text-morado': orden.status === 'FINISHED',
+                    'bg-morado-suave text-morado': orden.status === 'FINISHED'
                   }"
               style="font-size: 0.75rem; letter-spacing: 0.5px; text-transform: uppercase; border: 1px solid currentColor;">
               {{ orden.status }}
@@ -35,7 +35,7 @@
                           'text-warning': orden.status === 'IN_PROGRESS',
                           'text-morado': orden.status === 'FINISHED'
                         }"></i>
-                <span class="fw-bold">Usuario:</span>
+                <span class="fw-bold">Cliente:</span>
                 <span class="ms-1">{{ orden.name }}</span>
               </div>
 
@@ -52,19 +52,21 @@
 
           <!-- Detalles del propietario y resumen de la orden -->
           <div class="rounded-4 p-3 mb-4 shadow-sm order-card mx-auto">
-            <div class="d-flex text-muted fw-bold order-header">
+            <div class="d-flex text-muted fw-bold order-header mb-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">
               <div class="col-product">PRODUCTO</div>
               <div class="col-qty">CANT</div>
-              <div class="col-price">PRECIO U</div>
+              <div class="text-end" style="flex: 1.5;">PRECIO U</div>
               <div class="col-total">SUBTOTAL</div>
             </div>
 
             <!-- Listado de productos dentro de la orden -->
-            <div *ngFor="let item of orden.items"
-              class="d-flex align-items-center mb-3 pb-2 border-bottom border-white">
+            <div *ngIf="orden.items && orden.items.length > 0">
+              <div *ngFor="let item of orden.items"
+              class="d-flex align-items-center mb-2 pb-2 border-bottom border-light">
               <div style="flex: 1.2;">
-                <p class="mb-0 fw-semibold text-dark text-capitalize" style="font-size: 0.85rem; line-height: 1.2;">{{
-                  item.productName }}</p>
+                  <p class="mb-0 fw-semibold text-dark text-capitalize" style="font-size: 0.85rem; line-height: 1.2;">
+                    {{ item.productName }}
+                  </p>
               </div>
               <!-- Cantidad con estilo de badge -->
               <div class="text-center" style="flex: 0.8;">
@@ -83,24 +85,64 @@
                 {{ item.subTotal | currency: 'COP ': 'symbol-narrow': '1.0-0' }}
               </div>
             </div>
-            <!-- Total de la orden con estilo destacado -->
-            <div
-              class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top border-secondary border-opacity-10">
-              <span class="text-secondary fw-medium">Total de la compra</span>
-              <span class="fw-bold text-dark" style="font-size: 1.6rem; letter-spacing: -1px;">
+            </div>
+            <!-- Mensaje para ordenes sin productos --> 
+            <div *ngIf="!orden.items || orden.items.length === 0" class="text-center py-2 mb-2">
+              <span class="text-muted italic" style="font-size: 0.85rem;"><i class="bi bi-box me-1"></i>Sin productos en esta orden</span>
+            </div>
+
+            <!-- Detalles de mano de obra / servicios --> 
+            <div class="mt-4 pt-3 border-top border-secondary border-opacity-10">
+              <div class="d-flex text-muted fw-bold mb-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                <div style="flex: 2;"><i class="bi bi-tools me-1 text-secondary"></i>MANO DE OBRA / SERVICIO</div>
+                <div class="text-end" style="flex: 1;">PRECIO</div>
+              </div>
+
+              <!-- Listado de servicios técnicos dentro de la orden -->
+              <div *ngIf="orden.jobs && orden.jobs.length > 0">
+                <div *ngFor="let job of orden.jobs" class="d-flex align-items-center mb-2 pb-2 border-bottom border-light">
+                  <div style="flex: 2;">
+                    <p class="mb-0 fw-semibold text-dark text-capitalize" style="font-size: 0.85rem; line-height: 1.2;">
+                      {{ job.jobName }}
+                    </p>
+                  </div>
+                  <div class="text-end fw-medium text-dark font-monospace" style="flex: 1; font-size: 0.85rem;">
+                    {{ job.price | currency: 'COP ': 'symbol-narrow': '1.0-0' }}
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Mensaje para ordenes sin servicios técnicos -->
+              <div *ngIf="!orden.jobs || orden.jobs.length === 0" class="text-center py-2">
+                <span class="text-muted" style="font-size: 0.85rem;"><i class="bi bi-info-circle me-1"></i>No registra servicios técnicos</span>
+              </div>
+            </div>
+
+            <!-- Resumen final con total neto y mensaje de seguridad -->
+            <div class="d-flex justify-content-between align-items-center pt-3 mt-3 border-top border-dark border-opacity-25">
+              <span class="text-secondary fw-bold" style="font-size: 0.9rem; letter-spacing: 0.5px; text-transform: uppercase;">
+                Total Neto
+              </span>
+
+              <!-- Total formateado en moneda COP -->
+              <span class="fw-bold text-dark font-monospace" style="font-size: 1.6rem; letter-spacing: -1px;">
                 {{ orden.total | currency: 'COP ': 'symbol-narrow': '1.0-0' }}
               </span>
             </div>
           </div>
 
           <!-- Información de seguridad   -->
-          <div class="mt-4 pt-3 border-top border-light text-center">
-            <p class="text-muted mb-0 d-flex align-items-center justify-content-center gap-1"
-              style="font-size: 0.75rem;">
-              <i class="bi bi-lock-fill text-success"></i> Transacción protegida por el sistema de inventario.
+          <div class="mt-1 pt-1 border-top border-light text-center">
+             <p class="text-muted mb-0 d-flex align-items-center justify-content-center gap-1"
+              style="font-size: 0.83rem; letter-spacing: 0.3px;">
+              <i class="bi bi-eye text-secondary"></i> Vista de resumen. 
             </p>
+            <p class="text-muted mb-0 d-flex align-items-center justify-content-center gap-1"
+              style="font-size: 0.80rem; letter-spacing: 0.3px;">
+              Detalles y mano de obra verificados.
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
