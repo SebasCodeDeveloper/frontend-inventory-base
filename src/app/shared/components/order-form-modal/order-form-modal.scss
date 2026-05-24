@@ -11,7 +11,6 @@
 // Ajuste de ancho del modal para pantallas grandes
 .modal-custom-width {
   max-width: 1000px;
-  height: 10%;
   width: 95%;
 }
 
@@ -246,3 +245,31 @@
     color: white !important;
     border: none;
   }
+
+.empty-order-state {
+  transition: all 0.3s ease-in-out; 
+  border-color: #dee2e6 !important; 
+  
+  // Estilos base para el icono
+  .state-icon {
+    transition: filter 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+
+  // Estilos cuando el mouse está encima (HOVER)
+  &:hover {
+    background-color: #f8fafc !important; 
+    border-color: #a0aec0 !important; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05) !important; 
+
+    // Resalta el icono
+    .state-icon {
+      filter: brightness(0.8); 
+      opacity: 0.8 !important; 
+    }
+
+    // resaltar el texto también
+    p.text-muted {
+        color: #000000 !important; 
+    }
+  }
+}
