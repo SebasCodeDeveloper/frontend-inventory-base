@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment.development';
-import { OrderReportRs, OrderRq, GetOrderByEmailRq } from '../models/order.model';
+import { OrderReportRs, OrderRq, SearchUserOrdersRq } from '../models/order.model';
 
 /**
  * Servicio encargado de la gestión de órdenes de compra.
@@ -42,7 +42,7 @@ export class OrderService {
    * @param body Objeto que contiene el email del cliente.
    * @returns Observable con las órdenes encontradas.
    */
-getOrdersByCriteria(body: GetOrderByEmailRq): Observable<OrderReportRs[]> {
+getOrdersByCriteria(body: SearchUserOrdersRq): Observable<OrderReportRs[]> {
   return this.http.post<OrderReportRs[]>(`${this.URL_ORDERS}/search`, body, this.httpOptions)
     .pipe(catchError(this.handleError));
 }
