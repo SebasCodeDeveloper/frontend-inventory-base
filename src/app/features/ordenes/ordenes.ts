@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { OrderReportRs, GetOrderByEmailRq, OrderStatus } from '../../core/models/order.model';
+import { OrderReportRs, SearchUserOrdersRq, OrderStatus } from '../../core/models/order.model';
 import { NotificationService } from '../../core/services/notification';
 import { OrderService } from '../../core/services/order';
 import { OrderDetailModalComponent } from '../../shared/components/order-detail-modal/order-detail-modal';
@@ -114,7 +114,7 @@ buscarOrdenes(): void {
     return;
   }
 
-  const request = {} as GetOrderByEmailRq;
+  const request = {} as SearchUserOrdersRq;
 
   if (valorBusqueda.includes('@')) {
     request.email = valorBusqueda;

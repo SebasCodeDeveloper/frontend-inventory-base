@@ -4,8 +4,9 @@ import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { OrderService } from '../../../core/services/order';
 import { NotificationService } from '../../../core/services/notification';
 import { ProductService } from '../../../core/services/product';
-import { OrderRq, OrderReportRs } from '../../../core/models/order.model';
+import { OrderRq, OrderReportRs, JobCatalog } from '../../../core/models/order.model';
 import { UserService } from '../../../core/services/user';
+import { JobCatalogService } from '../../../core/services/job-catalog';
 
 declare var bootstrap: any;
 
@@ -38,6 +39,11 @@ export class OrderFormModalComponent implements OnInit {
   productosCatalogo: any[] = [];
   listaCorreos: string[] = [];
 
+  // Catálogo y Carrito temporal para DETALLES DEL TRABAJO (Mano de Obra)
+  catalogoTrabajos: JobCatalog[] = [];
+  carritoTrabajos: any[] = [];
+  editandoIndex: number | null = null;
+
   // Modelo para la entrada de nuevos productos al carrito
   nuevoItem = {
     productName: '',
@@ -45,16 +51,24 @@ export class OrderFormModalComponent implements OnInit {
     unitPrice: 0 
   };
 
+  // Modelo para la entrada de nuevos trabajos en caliente
+  nuevoTrabajo = {
+    jobName: '',
+    price: 0
+  };
+
   constructor(
     private orderService: OrderService,
     private productService: ProductService,
     private userService: UserService, 
+    private jobCatalogService: JobCatalogService,
     public notify: NotificationService,
   ) {}
 
   ngOnInit(): void {
     this.cargarCatalogo();
     this.cargarUsuariosRegistrados(); 
+    this.cargarCatalogoTrabajos(); 
   }
 
   /**
@@ -65,18 +79,28 @@ export class OrderFormModalComponent implements OnInit {
     this.editMode = true;
     this.orderId = order.orderId;
     this.email = order.email;
+    
+    // Mapeo de productos existentes
     this.carrito = order.items.map(item => ({
       productName: item.productName,
       quantity: item.quantity,
       unitPrice: item.unitPrice
     }));
+
+    // Mapeo de trabajos existentes en caso de edición
+    this.carritoTrabajos = order.jobs ? order.jobs.map(job => ({
+      jobName: job.jobName,
+      price: job.price
+    })) : [];
   }
 
   /**
-   * Calcula el total acumulado de la venta actual
+   * Calcula el total acumulado de la venta actual (Productos + Mano de Obra)
    */
   get totalVenta(): number {
-    return this.carrito.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0);
+    const totalProductos = this.carrito.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0);
+    const totalTrabajos = this.carritoTrabajos.reduce((acc, job) => acc + job.price, 0);
+    return totalProductos + totalTrabajos;
   }
 
   /**
@@ -109,6 +133,18 @@ export class OrderFormModalComponent implements OnInit {
   }
 
   /**
+   * Carga el catálogo de trabajos aprendidos por el sistema
+   */
+  cargarCatalogoTrabajos(): void {
+    this.jobCatalogService.getCatalog().subscribe({
+      next: (data) => {
+        this.catalogoTrabajos = data;
+      },
+      error: () => console.error('Error al cargar catálogo de trabajos')
+    });
+  }
+
+  /**
    * Busca automáticamente el precio de un producto mientras el usuario escribe o selecciona un nombre
    */
   buscarPrecio(): void {
@@ -121,6 +157,21 @@ export class OrderFormModalComponent implements OnInit {
       (p) => p.name.toLowerCase() === nombreInput.toLowerCase()
     );
     this.nuevoItem.unitPrice = producto ? producto.price : 0;
+  }
+
+  /**
+   * Lógica Inteligente - Busca el precio base sugerido mientras se escribe la mano de obra
+   */
+  buscarPrecioTrabajo(): void {
+    if (!this.nuevoTrabajo.jobName) {
+      this.nuevoTrabajo.price = 0;
+      return;
+    }
+    const nombreInput = this.nuevoTrabajo.jobName.trim().toLowerCase();
+    const trabajo = this.catalogoTrabajos.find(
+      (t) => t.name.toLowerCase() === nombreInput
+    );
+    this.nuevoTrabajo.price = trabajo ? trabajo.basePrice : 0;
   }
 
   /**
@@ -169,34 +220,73 @@ export class OrderFormModalComponent implements OnInit {
   }
 
   /**
+   * Agrega un servicio de mano de obra al carrito temporal de trabajos
+   * @param jobControl Control del input para limpiar los estados visuales de validación
+   */
+  agregarTrabajoAlCarrito(jobControl: NgModel): void {
+    const nombreInput = this.nuevoTrabajo.jobName.trim();
+    if (!nombreInput) return;
+
+    // Validación: Evitar duplicar el mismo concepto en la misma orden de forma idéntica
+    const index = this.carritoTrabajos.findIndex(
+      (j) => j.jobName.toLowerCase() === nombreInput.toLowerCase()
+    );
+
+    if (index !== -1) {
+      // Si ya existe, simplemente reemplazamos/actualizamos con el precio nuevo cobrado
+      this.carritoTrabajos[index].price = this.nuevoTrabajo.price;
+    } else {
+      this.carritoTrabajos.push({
+        jobName: nombreInput,
+        price: this.nuevoTrabajo.price
+      });
+    }
+
+    // Resetear modelo de entrada de mano de obra
+    this.nuevoTrabajo = { jobName: '', price: 0 };
+    if (jobControl) {
+      jobControl.control.markAsPristine();
+      jobControl.control.markAsUntouched();
+    }
+  }
+
+  /**
    * Procesa el guardado de la orden (Creación o Actualización)
    */
   guardarOrden(): void {
-    if (!this.email || this.carrito.length === 0) return;
+    // BLINDAJE ADICIONAL: Validar que contenga al menos un producto O un trabajo según tu @AssertTrue de Spring
+    if (!this.email) return;
+    if (this.carrito.length === 0 && this.carritoTrabajos.length === 0) {
+      this.notify.show('error', 'Orden', 'Orden Vacía', 'Debe agregar al menos un producto o un detalle de trabajo.');
+      return;
+    }
 
     this.isLoading = true;
 
-    // Estructura de datos común para ambos casos
-    const payload = {
+    // Estructura de datos común mapeando simétricamente lo que tu 'OrderRq' y 'OrderReportRs' esperan
+    const payload: OrderRq = {
       email: this.email,
       items: this.carrito.map((item) => ({
         productName: item.productName,
         quantity: item.quantity
       })),
+      jobs: this.carritoTrabajos.map((job) => ({
+        jobName: job.jobName,
+        price: job.price
+      }))
     };
 
     // Decisión de flujo basada en el modo de edición
     const request = (this.editMode && this.orderId)
       ? this.orderService.updateOrder(this.orderId, payload as any)
-      : this.orderService.createOrder(payload as OrderRq);
+      : this.orderService.createOrder(payload);
 
     request.subscribe({
       next: () => {
         this.isLoading = false;
         this.notify.show(this.editMode ? 'update' : 'create', 'Orden'); 
         this.orderCreated.emit(); 
-        this.limpiarYcerrar();     
-             
+        this.limpiarYcerrar();   
       },
       error: (err) => {
         this.isLoading = false;
@@ -206,19 +296,22 @@ export class OrderFormModalComponent implements OnInit {
     });
   }
 
-/**
+  /**
    * Resetea el estado y los datos del formulario.
    */
   public limpiarDatos(): void {
     this.email = null;
     this.carrito = [];
+    this.carritoTrabajos = [];
     this.editMode = false;
     this.orderId = null;
     this.nuevoItem = { productName: '', quantity: 1, unitPrice: 0 };
+    this.nuevoTrabajo = { jobName: '', price: 0 };
 
     if (this.orderForm) {
       this.orderForm.resetForm({ quantity: 1 });
     }
+    this.cargarCatalogoTrabajos();
   }
 
   /**
@@ -243,25 +336,46 @@ export class OrderFormModalComponent implements OnInit {
     this.cerrarModal();
   }
 
-/**
- * Cambia la cantidad de un ítem en el carrito.
- * Si la cantidad llega a 0, se elimina automáticamente.
- * @param index Posición en el array
- * @param valor 1 para sumar, -1 para restar
- */
-cambiarCantidad(index: number, valor: number): void {
-  const item = this.carrito[index];
-  item.quantity += valor;
+  /**
+   * Cambia la cantidad de un ítem en el carrito.
+   * Si la cantidad llega a 0, se elimina automáticamente.
+   * @param index Posición en el array
+   * @param valor 1 para sumar, -1 para restar
+   */
+  cambiarCantidad(index: number, valor: number): void {
+    const item = this.carrito[index];
+    item.quantity += valor;
 
-  if (item.quantity <= 0) {
-    this.eliminarDelCarrito(index);
+    if (item.quantity <= 0) {
+      this.eliminarDelCarrito(index);
+    }
   }
-}
 
-/**
- * Elimina un producto del carrito por su índice.
- */
-eliminarDelCarrito(index: number): void {
-  this.carrito.splice(index, 1);
-}
+  /**
+   * Elimina un producto del carrito por su índice.
+   */
+  eliminarDelCarrito(index: number): void {
+    this.carrito.splice(index, 1);
+  }
+
+  /**
+   * Elimina un servicio de mano de obra del carrito por su índice.
+   */
+  eliminarTrabajoDelCarrito(index: number): void {
+    this.carritoTrabajos.splice(index, 1);
+  }
+  // Agrega estos tres métodos rápidos al final de tu componente:
+  activarEdicionPrecio(index: number): void {
+    this.editandoIndex = index;
+  }
+
+  guardarEdicionPrecio(): void {
+    this.editandoIndex = null;
+  // Forzamos el refresco del getter del total de la venta
+    this.carritoTrabajos = [...this.carritoTrabajos];
+  }
+
+  cancelarEdicionPrecio(): void {
+    this.editandoIndex = null;
+  }
 }
