@@ -155,14 +155,19 @@ public executePasswordConfirmation(pass: string) {
 /** * Cancela cualquier acción pendiente de confirmación o validación de contraseña.
  * También emite un evento para que los componentes puedan reaccionar a la cancelación.
  */
-  notifyCancel() 
-  { this.cancelSource.next(); }
+notifyCancel() { 
+    this.isValidating = false;
+    this.cancelSource.next(); 
+  }
   
   /**
    * Limpieza manual del DOM para evitar que el fondo oscuro se quede bloqueado.
    */
   private cleanupDOM() {
     setTimeout(() => {
+      
+      if (this.isValidating) return;
+  
       if (document.querySelectorAll('.modal.show').length === 0) {
         const backdrops = document.querySelectorAll('.modal-backdrop');
         backdrops.forEach(b => b.remove());

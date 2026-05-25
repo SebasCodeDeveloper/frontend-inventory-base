@@ -141,17 +141,19 @@ saveProductAction = (formData: any, id?: string) => {
 
   return new Observable((observer: any) => {
     const executeUpdate = (password: string) => {
-      this.notify.lastModalId = null; 
-      this.notify.isValidating = false; 
+      this.notify.lastModalId = 'productModal'; 
 
       const payload = { productRq: formData, auth: { password } };
       this.productService.updateProduct(id, payload).subscribe({
         next: (res) => {
+          this.notify.lastModalId = null; 
+          this.notify.isValidating = false; 
           observer.next(res);
           observer.complete();
         },
         error: (err) => {
-          this.notify.isValidating = false;
+          this.notify.isValidating = true;
+          this.notify.lastModalId = 'productModal'; 
           observer.error(err);
         }
       });
@@ -162,7 +164,11 @@ saveProductAction = (formData: any, id?: string) => {
     } else {
       this.notify.isValidating = true;
       this.notify.lastModalId = 'productModal'; 
-      this.cerrarModalProducto();
+      
+      const productModalEl = document.getElementById('productModal');
+      if (productModalEl) {
+        bootstrap.Modal.getOrCreateInstance(productModalEl).hide();
+      }
 
       this.notify.askPassword((passwordEntered) => {
         executeUpdate(passwordEntered);
@@ -170,14 +176,6 @@ saveProductAction = (formData: any, id?: string) => {
     }
   });
 }
-private cerrarModalProducto(): void {
-  const modalElement = document.getElementById('productModal'); 
-  if (modalElement) {
-    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
-    modalInstance.hide();
-  }
-}
-
 
 /** * Maneja el cambio del switch de seguridad.
  * Si se activa, solicita la contraseña maestra para validar al usuario.
