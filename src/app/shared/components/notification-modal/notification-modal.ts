@@ -28,12 +28,29 @@ export class NotificationModalComponent {
   
 onPasswordModalHidden() {
   if (this.notify.lastModalId) {
-    const modalElement = document.getElementById(this.notify.lastModalId);
-    if (modalElement) {
-      const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
-      modalInstance.show();
-    }
-    this.notify.lastModalId = null; 
+   
+    document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+
+    // Un delay milimétrico para que el DOM respire y asimile la limpieza
+    setTimeout(() => {
+      const modalElement = document.getElementById(this.notify.lastModalId!);
+      if (modalElement) {
+       
+        const viejaInstance = bootstrap.Modal.getInstance(modalElement);
+        if (viejaInstance) viejaInstance.dispose();
+
+        
+        const modalInstance = new bootstrap.Modal(modalElement, {
+          backdrop: true,
+          keyboard: true
+        });
+        modalInstance.show();
+      }
+      this.notify.lastModalId = null; 
+    }, 50);
   }
 }
 }
