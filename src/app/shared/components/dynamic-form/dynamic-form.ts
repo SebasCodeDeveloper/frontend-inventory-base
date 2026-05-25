@@ -69,6 +69,9 @@ export class DynamicFormComponent implements OnDestroy, AfterViewInit {
    * Si recibe 'null', resetea el formulario para una nueva creación.
    */
   @Input() set dataToEdit(data: any) {
+    
+    this.backendErrors = [];
+
     if (data) {
       this.id = data.id;
       this.isEditMode = true;
@@ -154,13 +157,18 @@ private ejecutarLimpiezaSilenciosa(): void {
   onSubmit() {
     if (this.form.invalid) return;
     this.backendErrors = [];
+    this.isLoading = true; 
     this.saveAction(this.form.value, this.id).subscribe({
       next: () => {
+        this.notify.isValidating = false;
         this.operationSuccess.emit();
         this.isLoading = false;
         this.resetFormTotal();
       },
-      error: (err) => {this.handleBackendErrors(err);
+      error: (err) => {
+        this.isLoading = false;
+        this.notify.isValidating = true; 
+        this.handleBackendErrors(err);
       },
     });
   }
